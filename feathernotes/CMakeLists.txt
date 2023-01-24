@@ -108,24 +108,6 @@ if(NOT WITHOUT_X11 AND UNIX AND NOT APPLE AND NOT HAIKU)
   set(feathernotes_SRCS ${feathernotes_SRCS} x11.cpp)
 endif()
 
-if(QT_VERSION_MAJOR EQUAL 6)
-  qt6_add_dbus_adaptor(feathernotes_DBUS_SRCS
-      org.feathernotes.Application.xml
-      singleton.h
-      FeatherNotes::FNSingleton
-      feathernotesadaptor
-      FeatherNotesAdaptor
-  )
-else()
-  qt5_add_dbus_adaptor(feathernotes_DBUS_SRCS
-      org.feathernotes.Application.xml
-      singleton.h
-      FeatherNotes::FNSingleton
-      feathernotesadaptor
-      FeatherNotesAdaptor
-  )
-endif()
-
 set(feathernotes_RESOURCES data/fn.qrc)
 set(DESKTOP_FILE data/feathernotes.desktop)
 set(METAINFO_FILE data/feathernotes.metainfo.xml)

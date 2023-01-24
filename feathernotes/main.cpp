@@ -16,6 +16,7 @@
  */
 
 #include <QTextStream>
+#include <QDebug>
 
 #include "singleton.h"
 #if not defined (Q_OS_WIN)
@@ -53,6 +54,7 @@ int main(int argc, char *argv[])
     singleton.setApplicationName (name);
     singleton.setApplicationVersion (version);
 
+    qDebug() << 1;
 #if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
     singleton.setAttribute (Qt::AA_UseHighDpiPixmaps, true);
 #endif
@@ -62,6 +64,7 @@ int main(int argc, char *argv[])
     if (!langs.isEmpty())
         lang = langs.first().replace ('-', '_');
 
+    qDebug() << 2;
     QTranslator qtTranslator;
 #if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
     if (qtTranslator.load ("qt_" + lang, QLibraryInfo::location (QLibraryInfo::TranslationsPath)))
@@ -83,6 +86,7 @@ int main(int argc, char *argv[])
             singleton.installTranslator (&qtTranslator);
         }
     }
+    qDebug() << 3;
 
     QTranslator FPTranslator;
 #if defined (Q_OS_HAIKU)
@@ -104,10 +108,11 @@ int main(int argc, char *argv[])
             info << QString::fromUtf8 (argv[2]);
     }
 
+    qDebug() << 4;
     if (!singleton.isPrimaryInstance())
     {
-        singleton.sendInfo (info); // is sent to the primary instance
-        return 0;
+        //singleton.sendInfo (info); // is sent to the primary instance
+        //return 0;
     }
 
 #if not defined (Q_OS_WIN)
@@ -121,5 +126,6 @@ int main(int argc, char *argv[])
     QObject::connect (&singleton, &QCoreApplication::aboutToQuit, &singleton, &FeatherNotes::FNSingleton::quitting);
     singleton.openFile (info);
 
+    qDebug() << 5;
     return singleton.exec();
 }

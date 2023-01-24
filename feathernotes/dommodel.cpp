@@ -15,8 +15,9 @@
  * with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QtGui>
-#include <QtXml>
+#include <QImage>
+#include <QPixmap>
+#include <QIcon>
 
 #include "domitem.h"
 #include "dommodel.h"

@@ -17,7 +17,6 @@
 
 
 #include "singleton.h"
-#include "feathernotesadaptor.h"
 
 #ifdef HAS_X11
 #include "x11.h"
@@ -25,41 +24,9 @@
 
 namespace FeatherNotes {
 
-static const char *serviceName = "org.feathernotes.FeatherNotes";
-static const char *ifaceName = "org.feathernotes.Application";
-
 FNSingleton::FNSingleton (int &argc, char **argv) : QApplication (argc, argv)
 {
-#ifdef HAS_X11
-#if defined Q_OS_LINUX || defined Q_OS_FREEBSD || defined Q_OS_OPENBSD || defined Q_OS_NETBSD || defined Q_OS_HURD
-    isX11_ = (QString::compare (QGuiApplication::platformName(), "xcb", Qt::CaseInsensitive) == 0);
-#else
-    isX11_ = false;
-#endif
-#else
-    isX11_ = false;
-#endif
 
-    setQuitOnLastWindowClosed (false); // because windows can be iconified into the tray
-
-    if (isX11_)
-        isWayland_ = false;
-    else
-        isWayland_ = (QString::compare (QGuiApplication::platformName(), "wayland", Qt::CaseInsensitive) == 0);
-
-    quitSignalReceived_ = false;
-    trayChecked_ = false;
-
-    isPrimaryInstance_ = false;
-    QDBusConnection dbus = QDBusConnection::sessionBus();
-    if (!dbus.isConnected()) // interpret it as the lack of D-Bus
-        isPrimaryInstance_ = true;
-    else if (dbus.registerService (QLatin1String (serviceName)))
-    {
-        isPrimaryInstance_ = true;
-        new FeatherNotesAdaptor (this);
-        dbus.registerObject (QStringLiteral ("/Application"), this);
-    }
 }
 /*************************/
 FNSingleton::~FNSingleton()
@@ -81,11 +48,7 @@ void FNSingleton::quitSignalReceived()
 /*************************/
 void FNSingleton::sendInfo (const QStringList &info)
 {
-    QDBusConnection dbus = QDBusConnection::sessionBus();
-    QDBusInterface iface (QLatin1String (serviceName),
-                          QStringLiteral ("/Application"),
-                          QLatin1String (ifaceName), dbus, this);
-    iface.call (QStringLiteral ("openFile"), info);
+
 }
 /*************************/
 void FNSingleton::openFile (const QStringList &info)
