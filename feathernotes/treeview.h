@@ -39,10 +39,10 @@ public:
         setDragDropMode (QAbstractItemView::InternalMove);
         header()->setOffset (0);
         setHeaderHidden (true);
-        setAnimated (true);
-        setDragEnabled (true);
-        setAcceptDrops (true);
-        setDropIndicatorShown (true);
+        setAnimated (false);
+        setDragEnabled (false);
+        setAcceptDrops (false);
+        setDropIndicatorShown (false);
         setDefaultDropAction (Qt::IgnoreAction);
         setSelectionMode (QAbstractItemView::SingleSelection);
         setSelectionBehavior (QAbstractItemView::SelectRows);

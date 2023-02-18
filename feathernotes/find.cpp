@@ -525,6 +525,7 @@ void FN::rehighlight (TextEdit *textEdit)
 /*************************/
 void FN::reallySetSearchFlags (bool h)
 {
+    qDebug() << "reallySetSearchFlags called";
     searchFlags_ = QTextDocument::FindFlags();
     if (ui->wholeButton->isChecked())
         searchFlags_ = QTextDocument::FindWholeWords;

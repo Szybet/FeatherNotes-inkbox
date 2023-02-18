@@ -29,6 +29,8 @@
 
 #include "svgicons.h"
 
+// No idea what this is. It causes problems, using native QIcon
+
 namespace FeatherNotes {
 
 class symbolicIconEngine : public QIconEngine

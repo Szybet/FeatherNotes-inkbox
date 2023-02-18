@@ -25,6 +25,7 @@
 
 #include <QLibraryInfo>
 #include <QTranslator>
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
@@ -35,12 +36,10 @@ int main(int argc, char *argv[])
     {
         QTextStream out (stdout);
         out << "FeatherNotes - Lightweight Qt hierarchical notes-manager\n"\
-               "\nUsage:\n	feathernotes [options] [file] "\
+               "\nUsage:\n	FeatherNotes [options] [file] "\
                "Open the specified file\nOptions:\n"\
                "--version or -v   Show version information and exit.\n"\
-               "--help            Show this help and exit.\n"\
-               "-m, --min         Start minimized.\n"\
-               "-t, --tray        Start iconified to tray if there is a tray.\n\n";
+               "--help            Show this help and exit.\n";
         return 0;
     }
     else if (option == "--version" || option == "-v")
@@ -54,7 +53,6 @@ int main(int argc, char *argv[])
     singleton.setApplicationName (name);
     singleton.setApplicationVersion (version);
 
-    qDebug() << 1;
 #if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
     singleton.setAttribute (Qt::AA_UseHighDpiPixmaps, true);
 #endif
@@ -64,7 +62,6 @@ int main(int argc, char *argv[])
     if (!langs.isEmpty())
         lang = langs.first().replace ('-', '_');
 
-    qDebug() << 2;
     QTranslator qtTranslator;
 #if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
     if (qtTranslator.load ("qt_" + lang, QLibraryInfo::location (QLibraryInfo::TranslationsPath)))
@@ -86,7 +83,6 @@ int main(int argc, char *argv[])
             singleton.installTranslator (&qtTranslator);
         }
     }
-    qDebug() << 3;
 
     QTranslator FPTranslator;
 #if defined (Q_OS_HAIKU)
@@ -94,7 +90,7 @@ int main(int argc, char *argv[])
 #elif defined (Q_OS_WIN)
     if (FPTranslator.load ("feathernotes_" + lang, qApp->applicationDirPath() + "\\..\\data\\translations\\translations"))
 #else
-    if (FPTranslator.load ("feathernotes_" + lang, QStringLiteral (DATADIR) + "/feathernotes/translations"))
+    if (FPTranslator.load ("feathernotes_" + lang, QStringLiteral (DATADIR) + "/FeatherNotes/translations"))
 #endif
     {
         singleton.installTranslator (&FPTranslator);
@@ -108,7 +104,6 @@ int main(int argc, char *argv[])
             info << QString::fromUtf8 (argv[2]);
     }
 
-    qDebug() << 4;
     if (!singleton.isPrimaryInstance())
     {
         //singleton.sendInfo (info); // is sent to the primary instance
@@ -126,6 +121,13 @@ int main(int argc, char *argv[])
     QObject::connect (&singleton, &QCoreApplication::aboutToQuit, &singleton, &FeatherNotes::FNSingleton::quitting);
     singleton.openFile (info);
 
-    qDebug() << 5;
+    QApplication::setStyle("windows");
+    QFile stylesheetFile("/eink-feather.qss");
+    stylesheetFile.open(QFile::ReadOnly);
+    singleton.setStyleSheet(stylesheetFile.readAll());
+    stylesheetFile.close();
+
+    singleton.setCursorFlashTime(0);
+
     return singleton.exec();
 }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>FeatherNotes::FN</class>
- <widget class="QMainWindow" name="FN">
+ <widget class="QMainWindow" name="FeatherNotes::FN">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>700</width>
+    <width>628</width>
     <height>500</height>
    </rect>
   </property>
@@ -19,13 +19,13 @@
      <number>0</number>
     </property>
     <property name="leftMargin">
-     <number>0</number>
+     <number>6</number>
     </property>
     <property name="topMargin">
      <number>0</number>
     </property>
     <property name="rightMargin">
-     <number>0</number>
+     <number>6</number>
     </property>
     <property name="bottomMargin">
      <number>0</number>
@@ -38,41 +38,48 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="FeatherNotes::TreeView" name="treeView"/>
+      <widget class="FeatherNotes::TreeView" name="treeView">
+       <property name="frameShadow">
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="showDropIndicator" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="animated">
+        <bool>false</bool>
+       </property>
+      </widget>
       <widget class="QStackedWidget" name="stackedWidget"/>
      </widget>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QHBoxLayout" name="searchLayout">
+      <property name="spacing">
+       <number>25</number>
+      </property>
       <property name="leftMargin">
-       <number>2</number>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <property name="horizontalSpacing">
-       <number>3</number>
-      </property>
-      <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="nextButton">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="FeatherNotes::LineEdit" name="lineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>0</height>
+         </size>
         </property>
-        <property name="toolTip">
-         <string>Next (F3)</string>
-        </property>
-        <property name="shortcut">
-         <string>F3</string>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
+        <property name="placeholderText">
+         <string>Search...</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item>
        <widget class="QPushButton" name="prevButton">
         <property name="focusPolicy">
          <enum>Qt::NoFocus</enum>
@@ -88,23 +95,86 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0" rowspan="2">
-       <widget class="FeatherNotes::LineEdit" name="lineEdit">
-        <property name="minimumSize">
-         <size>
-          <width>150</width>
-          <height>0</height>
-         </size>
+      <item>
+       <widget class="QPushButton" name="nextButton">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
-        <property name="placeholderText">
-         <string>Search...</string>
+        <property name="toolTip">
+         <string>Next (F3)</string>
+        </property>
+        <property name="shortcut">
+         <string>F3</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="0" column="4" colspan="2">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QToolButton" name="caseButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Match Case (F5)</string>
+          </property>
+          <property name="text">
+           <string>Match Case</string>
+          </property>
+          <property name="shortcut">
+           <string>F5</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item alignment="Qt::AlignHCenter">
+         <widget class="QToolButton" name="wholeButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="toolTip">
+           <string>Whole Word (F6)</string>
+          </property>
+          <property name="text">
+           <string>Whole Word</string>
+          </property>
+          <property name="shortcut">
+           <string>F6</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <property name="spacing">
-         <number>3</number>
+         <number>20</number>
         </property>
         <item alignment="Qt::AlignHCenter">
          <widget class="QRadioButton" name="namesButton">
@@ -153,51 +223,6 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="4" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <property name="spacing">
-         <number>3</number>
-        </property>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QToolButton" name="caseButton">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Match Case (F5)</string>
-          </property>
-          <property name="text">
-           <string>Match Case</string>
-          </property>
-          <property name="shortcut">
-           <string>F5</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item alignment="Qt::AlignHCenter">
-         <widget class="QToolButton" name="wholeButton">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="toolTip">
-           <string>Whole Word (F6)</string>
-          </property>
-          <property name="text">
-           <string>Whole Word</string>
-          </property>
-          <property name="shortcut">
-           <string>F6</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </item>
    </layout>
@@ -207,14 +232,24 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>700</width>
-     <height>21</height>
+     <width>628</width>
+     <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+    </font>
    </property>
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
    </property>
    <widget class="QMenu" name="menuFile">
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string>&amp;File</string>
     </property>
@@ -292,6 +327,11 @@
     <addaction name="actionTable"/>
    </widget>
    <widget class="QMenu" name="menuTree">
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string>&amp;Tree</string>
     </property>
@@ -322,7 +362,6 @@
     <addaction name="actionDocFont"/>
     <addaction name="actionNodeFont"/>
     <addaction name="separator"/>
-    <addaction name="actionDocColors"/>
     <addaction name="separator"/>
     <addaction name="actionWrap"/>
     <addaction name="actionIndent"/>
@@ -352,6 +391,11 @@
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="font">
+    <font>
+     <pointsize>9</pointsize>
+    </font>
+   </property>
    <property name="contextMenuPolicy">
     <enum>Qt::PreventContextMenu</enum>
    </property>
@@ -364,26 +408,24 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionNew"/>
-   <addaction name="actionOpen"/>
    <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionClear"/>
+   <addaction name="actionBold"/>
+   <addaction name="actionItalic"/>
+   <addaction name="actionUnderline"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen"/>
+   <addaction name="separator"/>
    <addaction name="actionFind"/>
-   <addaction name="separator"/>
-   <addaction name="actionClear"/>
-   <addaction name="separator"/>
-   <addaction name="actionBold"/>
-   <addaction name="actionItalic"/>
-   <addaction name="actionUnderline"/>
    <addaction name="actionStrike"/>
    <addaction name="actionSuper"/>
    <addaction name="actionSub"/>
    <addaction name="separator"/>
-   <addaction name="actionTextColor"/>
-   <addaction name="actionBgColor"/>
    <addaction name="separator"/>
    <addaction name="actionLeft"/>
    <addaction name="actionCenter"/>
@@ -393,6 +435,7 @@
    <addaction name="actionLTR"/>
    <addaction name="actionRTL"/>
    <addaction name="actionMenu"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dockReplace">
@@ -866,7 +909,7 @@
     <string>Append &amp;Child</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+N</string>
+    <string>Ctrl+Alt+N</string>
    </property>
   </action>
   <action name="actionDeleteNode">

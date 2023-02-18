@@ -83,6 +83,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
 {
     ui->setupUi (this);
 
+    this->setAnimated(false);
     closed_ = false;
     imgScale_ = 100;
 
@@ -114,6 +115,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     fgColor_ = QColor (Qt::black);
 
     /* search bar */
+    ui->lineEdit->setClearButtonEnabled(false);
     ui->lineEdit->setVisible (false);
     ui->nextButton->setVisible (false);
     ui->prevButton->setVisible (false);
@@ -479,6 +481,8 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
         dummyWidget = new QWidget();*/
 
     setAcceptDrops (true);
+
+    ui->menuBar->setStyleSheet(QString("QMenuBar { font-size: 12pt; }"));
 }
 /*************************/
 FN::~FN()
@@ -2196,7 +2200,7 @@ void FN::txtContextMenu (const QPoint &p)
     {
         menu->addSeparator();
 
-        QMenu *submenu = menu->addMenu (symbolicIcon::icon (":icons/alignment.svg"), tr ("Align Table"));
+        QMenu *submenu = menu->addMenu (QIcon (":icons/alignment.svg"), tr ("Align Table"));
         QAction *a = submenu->addAction (tr ("&Left"));
         connect (a, &QAction::triggered, table, [table] {
             QTextTableFormat tf = table->format();
@@ -2782,7 +2786,7 @@ void FN::collapseAll()
 void FN::newNode()
 {
     closeWinDialogs();
-
+    ui->treeView->setFocus();
     QModelIndex index = ui->treeView->currentIndex();
     if (QObject::sender() == ui->actionNewSibling)
     {
@@ -2796,6 +2800,7 @@ void FN::newNode()
     }
     else //if (QObject::sender() == ui->actionNewChild)
     {
+        // Note: This shortcut was changed because shift doesn't work
         model_->insertRow (model_->rowCount (index), index);
         ui->treeView->expand (index);
     }
@@ -2936,8 +2941,8 @@ void FN::handleTags()
                           + "</p>");
     connect (lineEdit, &QLineEdit::returnPressed, dialog, &QDialog::accept);
     QSpacerItem *spacer = new QSpacerItem (1, 5);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
 
@@ -2998,7 +3003,7 @@ void FN::nodeIcon()
     ImagePathEntry->setToolTip (tr ("Image path"));
     connect (ImagePathEntry, &QLineEdit::returnPressed, dlg, &QDialog::accept);
     QToolButton *openBtn = new QToolButton();
-    openBtn->setIcon (symbolicIcon::icon (":icons/document-open.svg"));
+    openBtn->setIcon (QIcon (":icons/document-open.svg"));
     openBtn->setToolTip (tr ("Open image"));
     connect (openBtn, &QAbstractButton::clicked, dlg, [=] {
         QString path;
@@ -3030,8 +3035,8 @@ void FN::nodeIcon()
         ImagePathEntry->setText (file);
     });
     QSpacerItem *spacer = new QSpacerItem (1, 10, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dlg, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, dlg, &QDialog::accept);
 
@@ -3303,8 +3308,8 @@ void FN::docColorDialog()
     colorLayout->setColumnStretch (1, 1);
 
     QSpacerItem *spacer = new QSpacerItem (1, 10);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
     okButton->setDefault (true);
@@ -3395,6 +3400,14 @@ void FN::showHideSearch()
         ui->lineEdit->setFocus();
         ui->lineEdit->selectAll();
         return;
+    }
+
+    if(!visibility) {
+        ui->searchLayout->setContentsMargins(3, 5, 3, 15);
+        this->repaint();
+    } else {
+        ui->searchLayout->setContentsMargins(0,0,0,0);
+        this->repaint();
     }
 
     ui->lineEdit->setVisible (!visibility);
@@ -3599,7 +3612,7 @@ void FN::findInTags()
     listWidget->setSelectionMode (QAbstractItemView::SingleSelection);
     connect (listWidget, &QListWidget::itemActivated, this, &FN::selectRow);
     connect (listWidget, &QListWidget::currentRowChanged, this, &FN::chooseRow);
-    QPushButton *closeButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Close"));
+    QPushButton *closeButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Close"));
     connect (closeButton, &QAbstractButton::clicked, TagsDialog, &QDialog::reject);
     connect (TagsDialog, &QDialog::finished, this, &FN::clearTagsList);
 
@@ -4339,9 +4352,9 @@ void FN::insertLink()
     linkEntry->setText (href);
     connect (linkEntry, &QLineEdit::returnPressed, dialog, &QDialog::accept);
     QSpacerItem *spacer = new QSpacerItem (1, 5);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (okButton, &QAbstractButton::clicked, dialog,  &QDialog::accept);
 
     /* fit in the grid */
@@ -4412,7 +4425,7 @@ void FN::embedImage()
     imagePathEntry_->setToolTip (tr ("Image path"));
     connect (imagePathEntry_, &QLineEdit::returnPressed, dialog, &QDialog::accept);
     QToolButton *openBtn = new QToolButton();
-    openBtn->setIcon (symbolicIcon::icon (":icons/document-open.svg"));
+    openBtn->setIcon (QIcon (":icons/document-open.svg"));
     openBtn->setToolTip (tr ("Open image"));
     connect (openBtn, &QAbstractButton::clicked, this, &FN::setImagePath);
     QLabel *label = new QLabel();
@@ -4424,8 +4437,8 @@ void FN::embedImage()
     spinBox->setToolTip (tr ("Scaling percentage"));
     connect (spinBox, &SpinBox::returnPressed, dialog, &QDialog::accept);
     QSpacerItem *spacer = new QSpacerItem (1, 10);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
 
@@ -4599,8 +4612,8 @@ void FN::scaleImage()
     spinBox->setToolTip (tr ("Scaling percentage"));
     connect (spinBox, &SpinBox::returnPressed, dialog, &QDialog::accept);
     QSpacerItem *spacer = new QSpacerItem (1, 10);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
 
@@ -4862,8 +4875,8 @@ void FN::addTable()
     spinBoxCol->setValue (1);
     connect (spinBoxCol, &SpinBox::returnPressed, dialog, &QDialog::accept);
     QSpacerItem *spacer = new QSpacerItem (1, 10);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
 
@@ -5263,103 +5276,103 @@ void FN::readAndApplyConfig (bool startup)
     if (startup)
     {
         QIcon icn;
-        icn = symbolicIcon::icon (":icons/go-down.svg");
+        icn = QIcon (":icons/go-down.svg");
         ui->nextButton->setIcon (icn);
         ui->rplNextButton->setIcon (icn);
         ui->actionMoveDown->setIcon (icn);
-        icn = symbolicIcon::icon (":icons/go-up.svg");
+        icn = QIcon (":icons/go-up.svg");
         ui->prevButton->setIcon (icn);
         ui->rplPrevButton->setIcon (icn);
         ui->actionMoveUp->setIcon (icn);
-        ui->allButton->setIcon (symbolicIcon::icon (":icons/arrow-down-double.svg"));
-        icn = symbolicIcon::icon (":icons/document-save.svg");
+        ui->allButton->setIcon (QIcon (":icons/arrow-down-double.svg"));
+        icn = QIcon (":icons/document-save.svg");
         ui->actionSave->setIcon (icn);
         ui->actionImageSave->setIcon (icn);
-        ui->actionOpen->setIcon (symbolicIcon::icon (":icons/document-open.svg"));
-        ui->actionUndo->setIcon (symbolicIcon::icon (":icons/edit-undo.svg"));
-        ui->actionRedo->setIcon (symbolicIcon::icon (":icons/edit-redo.svg"));
-        ui->actionFind->setIcon (symbolicIcon::icon (":icons/edit-find.svg"));
-        ui->actionClear->setIcon (symbolicIcon::icon (":icons/edit-clear.svg"));
-        ui->actionClearRecent->setIcon (symbolicIcon::icon (":icons/edit-clear.svg"));
-        ui->actionBold->setIcon (symbolicIcon::icon (":icons/format-text-bold.svg"));
-        ui->actionItalic->setIcon (symbolicIcon::icon (":icons/format-text-italic.svg"));
-        ui->actionUnderline->setIcon (symbolicIcon::icon (":icons/format-text-underline.svg"));
-        ui->actionStrike->setIcon (symbolicIcon::icon (":icons/format-text-strikethrough.svg"));
-        ui->actionTextColor->setIcon (symbolicIcon::icon (":icons/format-text-color.svg"));
-        icn = symbolicIcon::icon (":icons/format-fill-color.svg");
+        ui->actionOpen->setIcon (QIcon (":icons/document-open.svg"));
+        ui->actionUndo->setIcon (QIcon (":icons/edit-undo.svg"));
+        ui->actionRedo->setIcon (QIcon (":icons/edit-redo.svg"));
+        ui->actionFind->setIcon (QIcon (":icons/edit-find.svg"));
+        ui->actionClear->setIcon (QIcon (":icons/edit-clear.svg"));
+        ui->actionClearRecent->setIcon (QIcon (":icons/edit-clear.svg"));
+        ui->actionBold->setIcon (QIcon (":icons/format-text-bold.svg"));
+        ui->actionItalic->setIcon (QIcon (":icons/format-text-italic.svg"));
+        ui->actionUnderline->setIcon (QIcon (":icons/format-text-underline.svg"));
+        ui->actionStrike->setIcon (QIcon (":icons/format-text-strikethrough.svg"));
+        ui->actionTextColor->setIcon (QIcon (":icons/format-text-color.svg"));
+        icn = QIcon (":icons/format-fill-color.svg");
         ui->actionBgColor->setIcon (icn);
         ui->actionDocColors->setIcon (icn);
-        ui->actionNew->setIcon (symbolicIcon::icon (":icons/document-new.svg"));
-        ui->actionSaveAs->setIcon (symbolicIcon::icon (":icons/document-save-as.svg"));
-        icn = symbolicIcon::icon (":icons/document-print.svg");
+        ui->actionNew->setIcon (QIcon (":icons/document-new.svg"));
+        ui->actionSaveAs->setIcon (QIcon (":icons/document-save-as.svg"));
+        icn = QIcon (":icons/document-print.svg");
         ui->actionPrint->setIcon (icn);
         ui->actionPrintNodes->setIcon (icn);
         ui->actionPrintAll->setIcon (icn);
-        ui->actionPassword->setIcon (symbolicIcon::icon (":icons/document-encrypt.svg"));
-        ui->actionQuit->setIcon (symbolicIcon::icon (":icons/application-exit.svg"));
-        ui->actionCut->setIcon (symbolicIcon::icon (":icons/edit-cut.svg"));
-        ui->actionCopy->setIcon (symbolicIcon::icon (":icons/edit-copy.svg"));
-        icn = symbolicIcon::icon (":icons/edit-paste.svg");
+        ui->actionPassword->setIcon (QIcon (":icons/document-encrypt.svg"));
+        ui->actionQuit->setIcon (QIcon (":icons/application-exit.svg"));
+        ui->actionCut->setIcon (QIcon (":icons/edit-cut.svg"));
+        ui->actionCopy->setIcon (QIcon (":icons/edit-copy.svg"));
+        icn = QIcon (":icons/edit-paste.svg");
         ui->actionPaste->setIcon (icn);
         ui->actionPasteHTML->setIcon (icn);
-        ui->actionDelete->setIcon (symbolicIcon::icon (":icons/edit-delete.svg"));
-        ui->actionSelectAll->setIcon (symbolicIcon::icon (":icons/edit-select-all.svg"));
-        ui->actionDate->setIcon (symbolicIcon::icon (":icons/document-open-recent.svg"));
-        ui->menuOpenRecently->setIcon (symbolicIcon::icon (":icons/document-open-recent.svg"));
-        icn = symbolicIcon::icon (":icons/image-x-generic.svg");
+        ui->actionDelete->setIcon (QIcon (":icons/edit-delete.svg"));
+        ui->actionSelectAll->setIcon (QIcon (":icons/edit-select-all.svg"));
+        ui->actionDate->setIcon (QIcon (":icons/document-open-recent.svg"));
+        ui->menuOpenRecently->setIcon (QIcon (":icons/document-open-recent.svg"));
+        icn = QIcon (":icons/image-x-generic.svg");
         ui->actionEmbedImage->setIcon (icn);
         ui->actionImageScale->setIcon (icn);
         ui->actionNodeIcon->setIcon (icn);
-        ui->actionExpandAll->setIcon (symbolicIcon::icon (":icons/expand.svg"));
-        ui->actionCollapseAll->setIcon (symbolicIcon::icon (":icons/collapse.svg"));
-        ui->actionDeleteNode->setIcon (symbolicIcon::icon (":icons/user-trash.svg"));
-        icn = symbolicIcon::icon (":icons/edit-rename.svg");
+        ui->actionExpandAll->setIcon (QIcon (":icons/expand.svg"));
+        ui->actionCollapseAll->setIcon (QIcon (":icons/collapse.svg"));
+        ui->actionDeleteNode->setIcon (QIcon (":icons/user-trash.svg"));
+        icn = QIcon (":icons/edit-rename.svg");
         ui->actionRenameNode->setIcon (icn);
         ui->namesButton->setIcon (icn);
-        ui->actionProp->setIcon (symbolicIcon::icon (":icons/document-properties.svg"));
-        icn = symbolicIcon::icon (":icons/preferences-desktop-font.svg");
+        ui->actionProp->setIcon (QIcon (":icons/document-properties.svg"));
+        icn = QIcon (":icons/preferences-desktop-font.svg");
         ui->actionDocFont->setIcon (icn);
         ui->actionNodeFont->setIcon (icn);
-        ui->actionPref->setIcon (symbolicIcon::icon (":icons/preferences-system.svg"));
-        ui->actionReplace->setIcon (symbolicIcon::icon (":icons/edit-find-replace.svg"));
-        ui->actionHelp->setIcon (symbolicIcon::icon (":icons/help-contents.svg"));
-        ui->actionAbout->setIcon (symbolicIcon::icon (":icons/help-about.svg"));
-        ui->actionSuper->setIcon (symbolicIcon::icon (":icons/format-text-superscript.svg"));
-        ui->actionSub->setIcon (symbolicIcon::icon (":icons/format-text-subscript.svg"));
-        ui->actionCenter->setIcon (symbolicIcon::icon (":icons/format-justify-center.svg"));
-        ui->actionRight->setIcon (symbolicIcon::icon (":icons/format-justify-right.svg"));
-        ui->actionLeft->setIcon (symbolicIcon::icon (":icons/format-justify-left.svg"));
-        ui->actionJust->setIcon (symbolicIcon::icon (":icons/format-justify-fill.svg"));
-        ui->actionMoveLeft->setIcon (symbolicIcon::icon (":icons/go-previous.svg"));
-        ui->actionMoveRight->setIcon (symbolicIcon::icon (":icons/go-next.svg"));
-        icn = symbolicIcon::icon (":icons/zoom-in.svg");
+        ui->actionPref->setIcon (QIcon (":icons/preferences-system.svg"));
+        ui->actionReplace->setIcon (QIcon (":icons/edit-find-replace.svg"));
+        ui->actionHelp->setIcon (QIcon (":icons/help-contents.svg"));
+        ui->actionAbout->setIcon (QIcon (":icons/help-about.svg"));
+        ui->actionSuper->setIcon (QIcon (":icons/format-text-superscript.svg"));
+        ui->actionSub->setIcon (QIcon (":icons/format-text-subscript.svg"));
+        ui->actionCenter->setIcon (QIcon (":icons/format-justify-center.svg"));
+        ui->actionRight->setIcon (QIcon (":icons/format-justify-right.svg"));
+        ui->actionLeft->setIcon (QIcon (":icons/format-justify-left.svg"));
+        ui->actionJust->setIcon (QIcon (":icons/format-justify-fill.svg"));
+        ui->actionMoveLeft->setIcon (QIcon (":icons/go-previous.svg"));
+        ui->actionMoveRight->setIcon (QIcon (":icons/go-next.svg"));
+        icn = QIcon (":icons/zoom-in.svg");
         ui->actionH1->setIcon (icn);
         ui->actionH2->setIcon (icn);
         ui->actionH3->setIcon (icn);
-        icn = symbolicIcon::icon (":icons/tag.svg");
+        icn = QIcon (":icons/tag.svg");
         ui->actionTags->setIcon (icn);
         ui->tagsButton->setIcon (icn);
-        ui->actionLink->setIcon (symbolicIcon::icon (":icons/insert-link.svg"));
-        ui->actionCopyLink->setIcon (symbolicIcon::icon (":icons/link.svg"));
-        ui->actionTable->setIcon (symbolicIcon::icon (":icons/insert-table.svg"));
-        ui->actionTableAppendRow->setIcon (symbolicIcon::icon (":icons/edit-table-insert-row-below.svg"));
-        ui->actionTableAppendCol->setIcon (symbolicIcon::icon (":icons/edit-table-insert-column-right.svg"));
-        ui->actionTableDeleteRow->setIcon (symbolicIcon::icon (":icons/edit-table-delete-row.svg"));
-        ui->actionTableDeleteCol->setIcon (symbolicIcon::icon (":icons/edit-table-delete-column.svg"));
-        ui->actionTableMergeCells->setIcon (symbolicIcon::icon (":icons/edit-table-cell-merge.svg"));
-        ui->actionTablePrependRow->setIcon (symbolicIcon::icon (":icons/edit-table-insert-row-above.svg"));
-        ui->actionTablePrependCol->setIcon (symbolicIcon::icon (":icons/edit-table-insert-column-left.svg"));
-        ui->actionRTL->setIcon (symbolicIcon::icon (":icons/format-text-direction-rtl.svg"));
-        ui->actionLTR->setIcon (symbolicIcon::icon (":icons/format-text-direction-ltr.svg"));
-        ui->actionMenu->setIcon (symbolicIcon::icon (":icons/application-menu.svg"));
+        ui->actionLink->setIcon (QIcon (":icons/insert-link.svg"));
+        ui->actionCopyLink->setIcon (QIcon (":icons/link.svg"));
+        ui->actionTable->setIcon (QIcon (":icons/insert-table.svg"));
+        ui->actionTableAppendRow->setIcon (QIcon (":icons/edit-table-insert-row-below.svg"));
+        ui->actionTableAppendCol->setIcon (QIcon (":icons/edit-table-insert-column-right.svg"));
+        ui->actionTableDeleteRow->setIcon (QIcon (":icons/edit-table-delete-row.svg"));
+        ui->actionTableDeleteCol->setIcon (QIcon (":icons/edit-table-delete-column.svg"));
+        ui->actionTableMergeCells->setIcon (QIcon (":icons/edit-table-cell-merge.svg"));
+        ui->actionTablePrependRow->setIcon (QIcon (":icons/edit-table-insert-row-above.svg"));
+        ui->actionTablePrependCol->setIcon (QIcon (":icons/edit-table-insert-column-left.svg"));
+        ui->actionRTL->setIcon (QIcon (":icons/format-text-direction-rtl.svg"));
+        ui->actionLTR->setIcon (QIcon (":icons/format-text-direction-ltr.svg"));
+        ui->actionMenu->setIcon (QIcon (":icons/application-menu.svg"));
 
-        ui->actionPrepSibling->setIcon (symbolicIcon::icon (":icons/sibling-above.svg"));
-        ui->actionNewSibling->setIcon (symbolicIcon::icon (":icons/sibling-below.svg"));
-        ui->actionNewChild->setIcon (symbolicIcon::icon (":icons/child.svg"));
+        ui->actionPrepSibling->setIcon (QIcon (":icons/sibling-above.svg"));
+        ui->actionNewSibling->setIcon (QIcon (":icons/sibling-below.svg"));
+        ui->actionNewChild->setIcon (QIcon (":icons/child.svg"));
 
-        ui->everywhereButton->setIcon (symbolicIcon::icon (":icons/all.svg"));
-        ui->wholeButton->setIcon (symbolicIcon::icon (":icons/whole.svg"));
-        ui->caseButton->setIcon (symbolicIcon::icon (":icons/case.svg"));
+        ui->everywhereButton->setIcon (QIcon (":icons/all.svg"));
+        ui->wholeButton->setIcon (QIcon (":icons/whole.svg"));
+        ui->caseButton->setIcon (QIcon (":icons/case.svg"));
 
         icn = QIcon::fromTheme ("feathernotes");
         if (icn.isNull())
@@ -5806,13 +5819,13 @@ void FN::exportHTML()
     connect (htmlPahEntry_, &QLineEdit::returnPressed, dialog, &QDialog::accept);
 
     QToolButton *openBtn = new QToolButton();
-    openBtn->setIcon (symbolicIcon::icon (":icons/document-open.svg"));
+    openBtn->setIcon (QIcon (":icons/document-open.svg"));
     openBtn->setToolTip (tr ("Select path"));
     connect (openBtn, &QAbstractButton::clicked, this, &FN::setHTMLPath);
     QSpacerItem *spacer = new QSpacerItem (1, 5);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
 
 
@@ -6089,8 +6102,8 @@ void FN::setPswd()
     });
     QLabel *label = new QLabel();
     QSpacerItem *spacer = new QSpacerItem (1, 10);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, this, [this, lineEdit1] {
         if (pswrd_ != lineEdit1->text())
@@ -6187,8 +6200,8 @@ bool FN::isPswrdCorrect (const QString &file)
     QLabel *label = new QLabel();
     QSpacerItem *spacer0 = new QSpacerItem (1, 5);
     QSpacerItem *spacer1 = new QSpacerItem (1, 5);
-    QPushButton *cancelButton = new QPushButton (symbolicIcon::icon (":icons/dialog-cancel.svg"), tr ("Cancel"));
-    QPushButton *okButton = new QPushButton (symbolicIcon::icon (":icons/dialog-ok.svg"), tr ("OK"));
+    QPushButton *cancelButton = new QPushButton (QIcon (":icons/dialog-cancel.svg"), tr ("Cancel"));
+    QPushButton *okButton = new QPushButton (QIcon (":icons/dialog-ok.svg"), tr ("OK"));
     connect (cancelButton, &QAbstractButton::clicked, dialog, &QDialog::reject);
     connect (okButton, &QAbstractButton::clicked, this, &FN::checkPswrd);
 
