@@ -150,35 +150,6 @@ PrefDialog::PrefDialog (QWidget *parent)
             win->remPosition (checked == Qt::Checked);
         });
 
-        /* use tray */
-        ui->hasTrayBox->setChecked (win->hasTray());
-        hasTray_ = win->hasTray();
-        connect (ui->hasTrayBox, &QCheckBox::stateChanged, win, [this, win] (int checked) {
-            win->useTray (checked == Qt::Checked);
-            showPrompt();
-        });
-        connect (ui->hasTrayBox, &QAbstractButton::toggled, ui->minTrayBox, &QWidget::setEnabled);
-
-        /* iconify into tray */
-        ui->minTrayBox->setChecked (win->doesMinToTray());
-        if (!win->hasTray())
-            ui->minTrayBox->setDisabled (true);
-        connect (ui->minTrayBox, &QCheckBox::stateChanged, win, [win] (int checked) {
-            win->minToTray (checked == Qt::Checked);
-        });
-
-        /* transparent tree view */
-        ui->transparentTree->setChecked (win->hasTransparentTree());
-        connect (ui->transparentTree, &QCheckBox::stateChanged, win, [win] (int checked) {
-            win->makeTreeTransparent (checked == Qt::Checked);
-        });
-
-        /* small toolbar icons */
-        ui->smallToolbarIcons->setChecked (win->hasSmallToolbarIcons());
-        connect (ui->smallToolbarIcons, &QCheckBox::stateChanged, win, [win] (int checked) {
-            win->setToolBarIconSize (checked == Qt::Checked);
-        });
-
         /* hide toolbar or menubar */
         ui->noToolbar->setChecked (win->withoutToolbar());
         ui->noMenubar->setChecked (win->withoutMenubar());
@@ -275,11 +246,6 @@ PrefDialog::PrefDialog (QWidget *parent)
         connect (ui->recentSpin, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), win, [win] (int value) {
             win->setRecentFilesNumber (value); // will take effect at closeEvent()
         });
-        /* whether recent files should be opened separately */
-        ui->recentBox->setChecked (win->getOpenReccentSeparately()); // up-to-date because of FN::getRecentFilesNumber()
-        connect (ui->recentBox, &QCheckBox::stateChanged, win, [win] (int checked) {
-            win->setOpenReccentSeparately (checked == Qt::Checked);
-        });
 
         /* whether expanded states of nodes should be remembered */
         ui->expandBox->setChecked (win->getRememberExpanded());
@@ -294,15 +260,6 @@ PrefDialog::PrefDialog (QWidget *parent)
         connect (ui->exitSaveBox, &QCheckBox::stateChanged, win, [win] (int checked) {
             win->setSaveOnExit (checked == Qt::Checked);
         });
-
-        /* spell checking */
-#ifdef HAS_HUNSPELL
-        ui->dictEdit->setText (win->getDictPath());
-        connect (ui->dictButton, &QAbstractButton::clicked, this, &PrefDialog::addDict);
-        connect (ui->dictEdit, &QLineEdit::editingFinished, this, &PrefDialog::addDict);
-#else
-        ui->dictGroupBox->setVisible (false);
-#endif
 
         /*****************
          *** Shortcuts ***

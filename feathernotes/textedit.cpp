@@ -690,6 +690,8 @@ void TextEdit::keyPressEvent (QKeyEvent *event)
         }
     }
 
+    // Note: Ctrl+3 for some reason loses focus instead of making H3 on kobo, so it's now alt
+
     QTextEdit::keyPressEvent (event);
 }
 /*************************/

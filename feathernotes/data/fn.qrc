@@ -70,10 +70,22 @@
         <file>icons/user-trash.svg</file>
         <file>icons/whole.svg</file>
         <file>icons/zoom-in.svg</file>
-        <file>icons/branch-closed.png</file>
-        <file>icons/branch-end.png</file>
-        <file>icons/branch-more.png</file>
-        <file>icons/branch-open.png</file>
-        <file>icons/vline.png</file>
+        <file>resources/branch-closed.png</file>
+        <file>resources/branch-end.png</file>
+        <file>resources/branch-more.png</file>
+        <file>resources/branch-open.png</file>
+        <file>resources/checkbox-unchecked-small.png</file>
+        <file>resources/checkbox-unchecked.png</file>
+        <file>resources/checkbox-x-small.png</file>
+        <file>resources/checkbox-x.png</file>
+        <file>resources/vline.png</file>
+        <file>resources/checkbox-checked-small.png</file>
+        <file>resources/checkbox-checked.png</file>
+        <file>resources/checkbox-indeterminate.png</file>
+        <file>resources/down-arrow-pressed.png</file>
+        <file>resources/down-arrow.png</file>
+        <file>resources/up-arrow-pressed.png</file>
+        <file>resources/up-arrow.png</file>
+        <file>eink-feather.qss</file>
     </qresource>
 </RCC>

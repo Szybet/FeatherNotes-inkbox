@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>FeatherNotes::PrefDialog</class>
- <widget class="QDialog" name="prefDialog">
+ <widget class="QDialog" name="FeatherNotes::PrefDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>386</height>
+    <height>418</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -54,8 +54,11 @@ Uncheck to set a fixed size!</string>
             </item>
             <item>
              <widget class="QSpinBox" name="winSpinX">
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
               <property name="suffix">
-               <string> px</string>
+               <string> px   </string>
               </property>
              </widget>
             </item>
@@ -68,8 +71,11 @@ Uncheck to set a fixed size!</string>
             </item>
             <item>
              <widget class="QSpinBox" name="winSpinY">
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
               <property name="suffix">
-               <string> px</string>
+               <string> px   </string>
               </property>
              </widget>
             </item>
@@ -115,72 +121,6 @@ with some window managers.</string>
             </property>
             <property name="text">
              <string>Save &amp;position</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="hasTrayBox">
-            <property name="toolTip">
-             <string>Decides whether a systray icon should be used.
-If checked, the titlebar close button iconifies
-the window to the systray instead of quitting.
-
-Needs restarting of FeatherNotes to take effect.</string>
-            </property>
-            <property name="text">
-             <string>Add to s&amp;ystray</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_1">
-            <item>
-             <spacer name="horizontalSpacer_1">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>22</width>
-                <height>5</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="minTrayBox">
-              <property name="toolTip">
-               <string>The command line option --tray
-can be used instead of this.</string>
-              </property>
-              <property name="text">
-               <string>Start i&amp;conified to tray</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="transparentTree">
-            <property name="toolTip">
-             <string>Merge the tree view with its surroundings?</string>
-            </property>
-            <property name="text">
-             <string>Transparent t&amp;ree view</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="smallToolbarIcons">
-            <property name="toolTip">
-             <string>By default, the active widget style determines
-the size of toolbar icons.</string>
-            </property>
-            <property name="text">
-             <string>Small toolbar icons</string>
             </property>
            </widget>
           </item>
@@ -310,8 +250,11 @@ Takes effect after closing this dialog.</string>
             </item>
             <item>
              <widget class="QSpinBox" name="autoSaveSpinBox">
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
               <property name="suffix">
-               <string> minute(s)</string>
+               <string> minute(s) </string>
               </property>
               <property name="minimum">
                <number>1</number>
@@ -352,69 +295,6 @@ showing a warning if saving is not possible.</string>
             <property name="text">
              <string>Save opened document on exiting</string>
             </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_1">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>5</width>
-              <height>5</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="dictGroupBox">
-            <property name="title">
-             <string>Spell Checking</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_4">
-               <item>
-                <widget class="QLabel" name="dictLabel">
-                 <property name="toolTip">
-                  <string>A Hunspell dictionary has a name that ends with &quot;.dic&quot;
-and should be alongside an affix file with the same
-name but ending with &quot;.aff&quot;.</string>
-                 </property>
-                 <property name="text">
-                  <string>Hunspell dictionary path:</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="dictEdit">
-                 <property name="toolTip">
-                  <string>A Hunspell dictionary has a name that ends with &quot;.dic&quot;
-and should be alongside an affix file with the same
-name but ending with &quot;.aff&quot;.</string>
-                 </property>
-                 <property name="clearButtonEnabled">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QToolButton" name="dictButton">
-                 <property name="toolTip">
-                  <string>Add dictionary...</string>
-                 </property>
-                 <property name="text">
-                  <string notr="true">...</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-            </layout>
            </widget>
           </item>
           <item>
@@ -467,6 +347,12 @@ name but ending with &quot;.aff&quot;.</string>
             </item>
             <item>
              <widget class="QSpinBox" name="recentSpin">
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
+              <property name="suffix">
+               <string/>
+              </property>
               <property name="maximum">
                <number>20</number>
               </property>
@@ -489,13 +375,6 @@ name but ending with &quot;.aff&quot;.</string>
              </spacer>
             </item>
            </layout>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="recentBox">
-            <property name="text">
-             <string>Open recent files separately</string>
-            </property>
-           </widget>
           </item>
           <item>
            <widget class="QCheckBox" name="expandBox">

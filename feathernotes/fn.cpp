@@ -130,6 +130,9 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     recentNum_ = 0;
     openReccentSeparately_ = false;
 
+    // Menu
+    ui->menuBar->setStyleSheet(QString("QMenuBar { font-size: 12pt; }"));
+
     /* replace dock */
     ui->dockReplace->setVisible (false);
 
@@ -481,8 +484,6 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
         dummyWidget = new QWidget();*/
 
     setAcceptDrops (true);
-
-    ui->menuBar->setStyleSheet(QString("QMenuBar { font-size: 12pt; }"));
 }
 /*************************/
 FN::~FN()
@@ -2761,11 +2762,16 @@ void FN::textDirection (QAction *a)
 void FN::makeHeader()
 {
     int index = ui->stackedWidget->currentIndex();
-    if (index == -1) return;
+    if (index == -1) {
+        qDebug() << "Text edit isin't selected";
+        return;
+    }
 
     QTextCharFormat fmt;
-    if (QObject::sender() == ui->actionH3)
+    if (QObject::sender() == ui->actionH3) {
         fmt.setProperty (QTextFormat::FontSizeAdjustment, 1);
+        qDebug() << "actionH3 called";
+    }
     else if (QObject::sender() == ui->actionH2)
         fmt.setProperty (QTextFormat::FontSizeAdjustment, 2);
     else// if (QObject::sender() == ui->actionH1)

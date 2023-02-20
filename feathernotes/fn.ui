@@ -1192,7 +1192,7 @@
     <string>Header 2</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+2</string>
+    <string>Alt+2</string>
    </property>
   </action>
   <action name="actionH1">
@@ -1206,7 +1206,7 @@
     <string>Header 1</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+1</string>
+    <string>Alt+1</string>
    </property>
   </action>
   <action name="actionH3">
@@ -1220,7 +1220,7 @@
     <string>Header 3</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+3</string>
+    <string>Alt+3</string>
    </property>
   </action>
   <action name="actionNodeFont">

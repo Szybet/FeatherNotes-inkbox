@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
     singleton.openFile (info);
 
     QApplication::setStyle("windows");
-    QFile stylesheetFile("/eink-feather.qss");
+    QFile stylesheetFile("://eink-feather.qss");
     stylesheetFile.open(QFile::ReadOnly);
     singleton.setStyleSheet(stylesheetFile.readAll());
     stylesheetFile.close();
