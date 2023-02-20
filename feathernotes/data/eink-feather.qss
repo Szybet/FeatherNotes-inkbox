@@ -31,16 +31,12 @@ QPushButton[type="bw"]:focus
 {
     border: none;
 }
+
 QPushButton[type="bw"]
 {
     background: black;
     color: white;
     border: none;
-}
-
-QPushButton
-{
-    border-radius: 10px;
 }
 
 QLabel[type="mangainfolabel"]
@@ -286,8 +282,10 @@ QPushButton
     color: black;
     padding: 2px;
     outline: none;
+    border-radius: 10px;
 }
 QPushButton:focus {
+    background: grey;
     padding: 2px;
 }
 QPushButton:pressed

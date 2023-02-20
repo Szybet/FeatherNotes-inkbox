@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
+    <width>3515</width>
     <height>500</height>
    </rect>
   </property>
@@ -232,7 +232,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>628</width>
+     <width>3515</width>
      <height>20</height>
     </rect>
    </property>
@@ -409,6 +409,8 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionHideTree"/>
    <addaction name="separator"/>
    <addaction name="actionClear"/>
    <addaction name="actionBold"/>
@@ -1384,6 +1386,9 @@
    </property>
   </action>
   <action name="actionCheckSpelling">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Check Spelling</string>
    </property>
@@ -1413,6 +1418,17 @@
   <action name="actionClearRecent">
    <property name="text">
     <string>&amp;Clear</string>
+   </property>
+  </action>
+  <action name="actionHideTree">
+   <property name="text">
+    <string>Hide Tree</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide the tree view</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
  </widget>

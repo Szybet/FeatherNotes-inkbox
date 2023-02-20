@@ -237,7 +237,6 @@ public:
 
 private slots:
     bool close();
-    void checkTray();
     void showContextMenu (const QPoint &p);
     void indexExpanded (const QModelIndex &index);
     void indexCollapsed (const QModelIndex &index);
@@ -347,6 +346,8 @@ private slots:
     void updateRecenMenu();
     void openRecentFile();
     void clearRecentMenu();
+    void addSketch();
+    void toggleTreeView();
 
 #ifdef HAS_HUNSPELL
     void checkSpelling();
@@ -356,7 +357,6 @@ private:
     void enableActions (bool enable);
     void fileOpen (const QString &filePath, bool startup = false, bool startWithLastFile = false);
     bool fileSave (const QString &filePath);
-    void createTrayIcon();
     void closeEvent (QCloseEvent *event);
     void resizeEvent (QResizeEvent *event);
     void changeEvent (QEvent *event);

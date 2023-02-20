@@ -85,7 +85,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
 
     this->setAnimated(false);
     closed_ = false;
-    imgScale_ = 100;
+    imgScale_ = 90;
 
     /* use our delegate with opaque editor */
     treeDelegate *treeDel = new treeDelegate (this);
@@ -399,21 +399,6 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
        systray should exist. Hence, we wait 60 sec for the systray at startup. */
     tray_ = nullptr;
     trayCounter_ = 0;
-    if (hasTray_)
-    {
-        if (QSystemTrayIcon::isSystemTrayAvailable())
-            createTrayIcon();
-        else if (!static_cast<FNSingleton*>(qApp)->isTrayChecked())
-        {
-            QTimer *trayTimer = new QTimer (this);
-            trayTimer->setSingleShot (true);
-            trayTimer->setInterval (5000);
-            connect (trayTimer, &QTimer::timeout, this, &FN::checkTray);
-            trayTimer->start();
-            ++trayCounter_;
-        }
-        else activateFNWindow (true);
-    }
 
     QShortcut *focusView = new QShortcut (QKeySequence (Qt::Key_Escape), this);
     connect (focusView, &QShortcut::activated, [this] {
@@ -483,7 +468,10 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     if (hasTray_)
         dummyWidget = new QWidget();*/
 
-    setAcceptDrops (true);
+    setAcceptDrops (false);
+
+    connect (ui->actionHideTree, &QAction::triggered, this, &FN::toggleTreeView);
+
 }
 /*************************/
 FN::~FN()
@@ -614,73 +602,6 @@ void FN::quitting()
         if (!singleton->Wins.isEmpty() && this == singleton->Wins.last())
             writeGeometryConfig();
     }
-}
-/*************************/
-void FN::checkTray()
-{
-    if (QTimer *trayTimer = qobject_cast<QTimer*>(sender()))
-    {
-        if (QSystemTrayIcon::isSystemTrayAvailable())
-        {
-            static_cast<FNSingleton*>(qApp)->setTrayChecked();
-            trayTimer->deleteLater();
-            createTrayIcon();
-            trayCounter_ = 0; // not needed
-        }
-        else if (trayCounter_ < 12)
-        {
-            if (trayCounter_ == 4) // show the window if the systray isn't found after 20 sec
-                activateFNWindow (true);
-            trayTimer->start();
-            ++trayCounter_;
-        }
-        else
-        {
-            static_cast<FNSingleton*>(qApp)->setTrayChecked();
-            trayTimer->deleteLater();
-            activateFNWindow (true);
-            showWarningBar ("<center><b><big>"
-                            + tr ("System tray is not available.\nPlease disable tray in Preferences.")
-                            + "</big></b></center>", -1);
-        }
-    }
-}
-/*************************/
-void FN::createTrayIcon()
-{
-    QIcon icn = QIcon::fromTheme ("feathernotes");
-    if (icn.isNull())
-        icn = QIcon (":icons/feathernotes.svg");
-    tray_ = new QSystemTrayIcon (icn, this);
-    if (xmlPath_.isEmpty())
-        tray_->setToolTip ("FeatherNotes");
-    else
-    {
-        QString shownName = QFileInfo (xmlPath_).fileName();
-        if (shownName.endsWith (".fnx"))
-            shownName.chop (4);
-        tray_->setToolTip (/*"<p style='white-space:pre'>"
-                           +*/ shownName // KDE's buggy tray can't show styled tooltips
-                           /*+ "</p>"*/);
-    }
-    QMenu *trayMenu = new QMenu (this);
-    /* we don't want shortcuts to be shown here */
-    QAction *actionshowMainWindow = trayMenu->addAction (tr ("&Raise/Hide"));
-    connect (actionshowMainWindow, &QAction::triggered, this, &FN::activateTray);
-    /* use system icons with the tray menu because it gets its style from the panel */
-    QAction *actionNewTray = trayMenu->addAction (QIcon::fromTheme ("document-new"), tr ("&New Note"));
-    QAction *actionOpenTray = trayMenu->addAction (QIcon::fromTheme ("document-open"), tr ("&Open"));
-    trayMenu->addSeparator();
-    QAction *antionQuitTray = trayMenu->addAction (QIcon::fromTheme ("application-exit"), tr ("&Quit"));
-    connect (actionNewTray, &QAction::triggered, this, &FN::newNote);
-    connect (actionOpenTray, &QAction::triggered, this, &FN::openFile);
-    connect (antionQuitTray, &QAction::triggered, this, &FN::close);
-    actionNewTray->setObjectName ("trayNew");
-    actionOpenTray->setObjectName ("trayOpen");
-    antionQuitTray->setObjectName ("trayQuit");
-    tray_->setContextMenu (trayMenu);
-    tray_->setVisible (true);
-    connect (tray_, &QSystemTrayIcon::activated, this, &FN::trayActivated );
 }
 /*************************/
 void FN::showContextMenu (const QPoint &p)
@@ -4425,6 +4346,10 @@ void FN::embedImage()
     grid->setContentsMargins (5, 5, 5, 5);
 
     /* create the needed widgets */
+    QToolButton *openSketchBtn = new QToolButton();
+    openSketchBtn->setIcon (QIcon ("://icons/edit-rename.svg"));
+    openSketchBtn->setToolTip (tr ("Sketch"));
+    connect (openSketchBtn, &QAbstractButton::clicked, this, &FN::addSketch);
     imagePathEntry_ = new LineEdit();
     imagePathEntry_->returnOnClear = false;
     imagePathEntry_->setMinimumWidth (200);
@@ -4439,7 +4364,7 @@ void FN::embedImage()
     SpinBox *spinBox = new SpinBox();
     spinBox->setRange (1, 200);
     spinBox->setValue (imgScale_);
-    spinBox->setSuffix (tr ("%"));
+    spinBox->setSuffix (tr ("%  "));
     spinBox->setToolTip (tr ("Scaling percentage"));
     connect (spinBox, &SpinBox::returnPressed, dialog, &QDialog::accept);
     QSpacerItem *spacer = new QSpacerItem (1, 10);
@@ -4449,7 +4374,8 @@ void FN::embedImage()
     connect (okButton, &QAbstractButton::clicked, dialog, &QDialog::accept);
 
     /* make the widgets fit in the grid */
-    grid->addWidget (imagePathEntry_, 0, 0, 1, 4);
+    grid->addWidget (openSketchBtn, 1, 4);
+    grid->addWidget (imagePathEntry_, 0, 0, 1, 3);
     grid->addWidget (openBtn, 0, 4, Qt::AlignCenter);
     grid->addWidget (label, 1, 0, Qt::AlignRight);
     grid->addWidget (spinBox, 1, 1, Qt::AlignLeft);
@@ -4477,6 +4403,16 @@ void FN::imageEmbed (const QString &path)
 {
     if (path.isEmpty()) return;
 
+    // First scale it, then save it
+    QImage img = QImage (path);
+    if (qobject_cast<QDialog*>(QObject::sender())) // from embedImage()
+    {
+        qDebug() << "Image is requested to be scaled:" << imgScale_;
+        img = img.scaled(img.width() * imgScale_ / 100, img.height() * imgScale_ / 100, Qt::KeepAspectRatio);
+        img.save(path, nullptr, 80);
+    }
+
+    // Now save it as base64
     QFile file (path);
     if (!file.open (QIODevice::ReadOnly))
         return;
@@ -4491,29 +4427,12 @@ void FN::imageEmbed (const QString &path)
     file.close();
     QByteArray base64array = rawarray.toBase64();
 
-    QImage img = QImage (path);
-    QSize imgSize = img.size();
-    int w, h;
-    if (qobject_cast<QDialog*>(QObject::sender())) // from embedImage()
-    {
-        w = imgSize.width() * imgScale_ / 100;
-        h = imgSize.height() * imgScale_ / 100;
-    }
-    else
-    {
-        w = imgSize.width();
-        h = imgSize.height();
-    }
     TextEdit *textEdit = qobject_cast<TextEdit*>(ui->stackedWidget->currentWidget());
     //QString ("<img src=\"data:image/png;base64,%1\">")
-    textEdit->insertHtml (QString ("<img src=\"data:image;base64,%1\" width=\"%2\" height=\"%3\" />")
-                          .arg (QString (base64array))
-                          .arg (w)
-                          .arg (h));
+    textEdit->insertHtml (QString ("<img src=\"data:image;base64,%1\"/>")
+                          .arg (QString (base64array)));
 
     raise();
-    if (!static_cast<FNSingleton*>(qApp)->isWayland())
-        activateWindow();
 }
 /*************************/
 void FN::setImagePath (bool)
@@ -4540,14 +4459,9 @@ void FN::setImagePath (bool)
     dialog.setWindowTitle (tr ("Open Image..."));
     dialog.setFileMode (QFileDialog::ExistingFiles);
     dialog.setNameFilter (tr ("Image Files (*.svg *.png *.jpg *.jpeg *.bmp *.gif);;All Files (*)"));
-    if (QFileInfo (path).isDir())
-        dialog.setDirectory (path);
-    else
-    {
-        dialog.setDirectory (path.section ("/", 0, -2)); // workaround for KDE
-        dialog.selectFile (path);
-        dialog.autoScroll();
-    }
+    dialog.setDirectory(QCoreApplication::applicationDirPath());
+    dialog.setFixedSize(this->size());
+
     if (dialog.exec())
     {
         QStringList files = dialog.selectedFiles();
@@ -4576,6 +4490,7 @@ bool FN::isImageSelected()
     return false;
 }
 /*************************/
+// something with icons
 void FN::scaleImage()
 {
     TextEdit *textEdit = qobject_cast<TextEdit*>(ui->stackedWidget->currentWidget());
@@ -5379,6 +5294,8 @@ void FN::readAndApplyConfig (bool startup)
         ui->everywhereButton->setIcon (QIcon (":icons/all.svg"));
         ui->wholeButton->setIcon (QIcon (":icons/whole.svg"));
         ui->caseButton->setIcon (QIcon (":icons/case.svg"));
+
+        ui->actionHideTree->setIcon (QIcon("://icons/tree.svg"));
 
         icn = QIcon::fromTheme ("feathernotes");
         if (icn.isNull())
@@ -6713,4 +6630,34 @@ bool FN::event (QEvent *event)
     return QMainWindow::event (event);
 }
 
+// NOTE: for editing previous file, the current dir should be cleaned before launching the program from sketch files
+void FN::addSketch() {
+    qDebug() << "Requested sketch";
+
+    QProcess *process = new QProcess(this);
+    process->setWorkingDirectory(QCoreApplication::applicationDirPath());
+    process->start("./sketch.sh", QStringList() << QCoreApplication::applicationDirPath());
+    process->waitForFinished(-1);
+    this->repaint();
+
+    QDir directory(QCoreApplication::applicationDirPath());
+    directory.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    QFileInfoList fileList = directory.entryInfoList(QDir::Files, QDir::Time);
+
+    if (!fileList.isEmpty()) {
+        QString latestFilePath = fileList.first().absoluteFilePath();
+        qDebug() << "Latest modified file path: " << latestFilePath;
+        if (!latestFilePath.isEmpty() && imagePathEntry_ != nullptr)
+            imagePathEntry_->setText (latestFilePath);
+    } else {
+        qDebug() << "No files found in directory";
+    }
 }
+
+void FN::toggleTreeView() {
+    ui->treeView->setHidden(ui->treeView->isVisible());
+}
+
+}
+

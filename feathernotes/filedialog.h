@@ -32,7 +32,7 @@ public:
     FileDialog (QWidget *parent) : QFileDialog (parent) {
         tView = nullptr;
         p = parent;
-        setViewMode (QFileDialog::Detail);
+        setViewMode (QFileDialog::List);
         //setOption (QFileDialog::DontUseNativeDialog);
     }
 

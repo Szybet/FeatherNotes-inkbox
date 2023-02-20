@@ -87,5 +87,6 @@
         <file>resources/up-arrow-pressed.png</file>
         <file>resources/up-arrow.png</file>
         <file>eink-feather.qss</file>
+        <file>icons/tree.svg</file>
     </qresource>
 </RCC>
