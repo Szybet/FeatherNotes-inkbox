@@ -29,6 +29,7 @@
 #include <QPushButton>
 #include <QAction>
 #include <QWhatsThis>
+#include <QDesktopWidget>
 
 namespace FeatherNotes {
 
@@ -150,23 +151,12 @@ PrefDialog::PrefDialog (QWidget *parent)
             win->remPosition (checked == Qt::Checked);
         });
 
-        /* hide toolbar or menubar */
-        ui->noToolbar->setChecked (win->withoutToolbar());
+        /* hide menubar */
         ui->noMenubar->setChecked (win->withoutMenubar());
-        connect (ui->noToolbar, &QCheckBox::stateChanged, win, [this, win] (int checked) {
-            if (checked == Qt::Checked)
-            {
-                win->showToolbar (false);
-                ui->noMenubar->setChecked (false);
-            }
-            else if (checked == Qt::Unchecked)
-                win->showToolbar (true);
-        });
         connect (ui->noMenubar, &QCheckBox::stateChanged, win, [this, win] (int checked) {
             if (checked == Qt::Checked)
             {
                 win->showMenubar (false);
-                ui->noToolbar->setChecked (false);
             }
             else if (checked == Qt::Unchecked)
                 win->showMenubar (true);
@@ -348,15 +338,13 @@ PrefDialog::PrefDialog (QWidget *parent)
         }
     }
 
-    if (win)
-    {
-        ag -= win->window()->frameGeometry().size() - win->window()->geometry().size();
-        if (win->getPrefSize().isEmpty())
-            resize (sizeHint().boundedTo(ag));
-        else
-            resize (win->getPrefSize().boundedTo(ag));
-    }
-    else resize (sizeHint().boundedTo(ag)); // impossible
+    // Move to center
+    QTimer::singleShot (10, this, [this] () {
+        QRect screenGeometry = QGuiApplication::screens().first()->geometry();
+        int x = screenGeometry.width() / 2 - this->width() / 2;
+        int y = screenGeometry.height() / 2 - this->height() / 2;
+        this->move(x, y);
+    });
 }
 /*************************/
 PrefDialog::~PrefDialog()

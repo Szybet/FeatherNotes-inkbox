@@ -125,13 +125,6 @@ with some window managers.</string>
            </widget>
           </item>
           <item>
-           <widget class="QCheckBox" name="noToolbar">
-            <property name="text">
-             <string>Do not show t&amp;oolbar</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="noMenubar">
             <property name="toolTip">
              <string>If the menubar is hidden,

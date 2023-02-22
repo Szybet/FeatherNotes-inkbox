@@ -128,6 +128,7 @@ int main(int argc, char *argv[])
     stylesheetFile.close();
 
     singleton.setCursorFlashTime(0);
+    qDebug() << "Starting";
 
     return singleton.exec();
 }

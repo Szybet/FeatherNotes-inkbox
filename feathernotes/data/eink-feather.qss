@@ -137,7 +137,8 @@ QMenu
 }
 QMenu::item::selected
 {
-  border-bottom: 5px solid black;
+  background: grey;
+  border: 3px solid black;
 }
 QMenu::item
 {

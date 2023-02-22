@@ -88,5 +88,9 @@
         <file>resources/up-arrow.png</file>
         <file>eink-feather.qss</file>
         <file>icons/tree.svg</file>
+        <file>icons/showMenu.svg</file>
+        <file>icons/h1.svg</file>
+        <file>icons/h2.svg</file>
+        <file>icons/h3.svg</file>
     </qresource>
 </RCC>

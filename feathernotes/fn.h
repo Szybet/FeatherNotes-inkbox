@@ -394,6 +394,8 @@ private:
     void closeNonModalDialogs();
     void closeWinDialogs();
     void updateNodeActions();
+    void toggleToolbarView();
+    void rightMouseClick();
 
 #ifdef HAS_HUNSPELL
     void spellingCheckingMsg (const QString &msg, bool hasInfo);

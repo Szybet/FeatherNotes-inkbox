@@ -96,7 +96,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     /* NOTE: The auto-saving timer starts only when a new note is created,
        a file is opened, or it is enabled in Preferences. It saves the doc
        only if it belongs to an existing file that needs saving. */
-    autoSave_ = -1;
+    autoSave_ = 2;
     saveNeeded_ = 0;
     timer_ = new QTimer (this);
     connect (timer_, &QTimer::timeout, this, &FN::autoSaving);
@@ -204,14 +204,14 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     wrapByDefault_ = true;
     indentByDefault_ = true;
     transparentTree_ = false;
-    smallToolbarIcons_ = true; // there are many icons
+    smallToolbarIcons_ = false;
     noToolbar_ = false;
-    noMenubar_ = false;
+    noMenubar_ = true;
     autoBracket_ = false;
     autoReplace_ = false;
-    openLastFile_ = false;
-    saveOnExit_ = false;
-    rememberExpanded_ = false;
+    openLastFile_ = true;
+    saveOnExit_ = true;
+    rememberExpanded_ = true;
     shownBefore_ = false;
     treeViewDND_ = false;
     readAndApplyConfig();
@@ -422,6 +422,9 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     connect (zoomout, &QShortcut::activated, this, &FN::zoomingOut);
     connect (unzoom, &QShortcut::activated, this, &FN::unZooming);
 
+    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_F1), this);
+    connect(shortcut, &QShortcut::activated, this, &FN::rightMouseClick);
+
     /* parse the message */
     QString filePath;
     if (message.isEmpty())
@@ -471,7 +474,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     setAcceptDrops (false);
 
     connect (ui->actionHideTree, &QAction::triggered, this, &FN::toggleTreeView);
-
+    connect (ui->actionHideMenu, &QAction::triggered, this, &FN::toggleToolbarView);
 }
 /*************************/
 FN::~FN()
@@ -4962,7 +4965,6 @@ void FN::toggleIndent()
 /*************************/
 void FN::prefDialog()
 {
-    closeWinDialogs();
     /* first, update settings because another
        FeatherNotes window may have changed them  */
     readAndApplyConfig (false);
@@ -5152,7 +5154,9 @@ void FN::readAndApplyConfig (bool startup)
     {
         if (splitterSizes.isEmpty() || !ui->splitter->restoreState (splitterSizes))
         {
-            QList<int> sizes; sizes << 170 << 530;
+            QList<int> sizes;
+            // width / height
+            sizes << 500 << 530;
             ui->splitter->setSizes (sizes);
         }
     }
@@ -5177,22 +5181,24 @@ void FN::readAndApplyConfig (bool startup)
     else if (!startup)
         makeTreeTransparent (false);
 
-    v = settings.value ("smallToolbarIcons"); // true by default
+    v = settings.value ("smallToolbarIcons");
     if (v.isValid())
         setToolBarIconSize (v.toBool());
     else
-        setToolBarIconSize (true);
+        setToolBarIconSize (false);
 
-    noToolbar_ = settings.value ("noToolbar").toBool(); // false by default
-    noMenubar_ = settings.value ("noMenubar").toBool(); // false by default
-    if (noToolbar_ && noMenubar_)
-    { // we don't want to hide all actions
-        noToolbar_ = false;
-        noMenubar_ = true;
+    if(settings.value ("noToolbar").isValid()) {
+        noToolbar_ = settings.value ("noToolbar").toBool(); // false by default
     }
-    ui->mainToolBar->setVisible (!noToolbar_);
-    ui->menuBar->setVisible (!noMenubar_);
-    ui->actionMenu->setVisible (noMenubar_);
+    if(settings.value ("noMenubar").isValid()) {
+        noMenubar_ = settings.value ("noMenubar").toBool();
+    }
+
+    if(startup) {
+        ui->mainToolBar->setVisible (!noToolbar_);
+        ui->menuBar->setVisible (!noMenubar_);
+        ui->actionMenu->setVisible (!noMenubar_);
+    }
 
     if (startup)
     {
@@ -5266,10 +5272,9 @@ void FN::readAndApplyConfig (bool startup)
         ui->actionJust->setIcon (QIcon (":icons/format-justify-fill.svg"));
         ui->actionMoveLeft->setIcon (QIcon (":icons/go-previous.svg"));
         ui->actionMoveRight->setIcon (QIcon (":icons/go-next.svg"));
-        icn = QIcon (":icons/zoom-in.svg");
-        ui->actionH1->setIcon (icn);
-        ui->actionH2->setIcon (icn);
-        ui->actionH3->setIcon (icn);
+        ui->actionH1->setIcon (QIcon ("://icons/h1.svg"));
+        ui->actionH2->setIcon (QIcon ("://icons/h2.svg"));
+        ui->actionH3->setIcon (QIcon ("://icons/h3.svg"));
         icn = QIcon (":icons/tag.svg");
         ui->actionTags->setIcon (icn);
         ui->tagsButton->setIcon (icn);
@@ -5296,6 +5301,7 @@ void FN::readAndApplyConfig (bool startup)
         ui->caseButton->setIcon (QIcon (":icons/case.svg"));
 
         ui->actionHideTree->setIcon (QIcon("://icons/tree.svg"));
+        ui->actionHideMenu->setIcon(QIcon("://icons/showMenu.svg"));
 
         icn = QIcon::fromTheme ("feathernotes");
         if (icn.isNull())
@@ -5335,7 +5341,7 @@ void FN::readAndApplyConfig (bool startup)
 
     dateFormat_ = settings.value ("dateFormat").toString();
 
-    int as = settings.value ("autoSave", -1).toInt();
+    int as = settings.value ("autoSave", 2).toInt();
     if (startup)
         autoSave_ = as;
     else if (autoSave_ != as)
@@ -5347,7 +5353,10 @@ void FN::readAndApplyConfig (bool startup)
             timer_->stop();
     }
 
-    openLastFile_ = settings.value ("openLastFile").toBool(); // false by default
+    if(settings.value ("openLastFile").isValid()) {
+        openLastFile_ = settings.value ("openLastFile").toBool(); // false by default
+    }
+
     if (openLastFile_)
     {
         xmlPath_ = settings.value ("lastOpenedFile").toString();
@@ -5364,9 +5373,13 @@ void FN::readAndApplyConfig (bool startup)
     dictPath_ = settings.value ("dictionaryPath").toString();
 #endif
 
-    rememberExpanded_ = settings.value ("rememberExpanded").toBool(); // false by default
+    if(settings.value ("rememberExpanded").isValid()) {
+        rememberExpanded_ = settings.value ("rememberExpanded").toBool(); // false by default
+    }
 
-    saveOnExit_ = settings.value ("saveOnExit").toBool(); // false by default
+    if(settings.value ("saveOnExit").isValid()) {
+        saveOnExit_ = settings.value ("saveOnExit").toBool(); // false by default
+    }
 
     settings.endGroup();
 }
@@ -6648,8 +6661,10 @@ void FN::addSketch() {
     if (!fileList.isEmpty()) {
         QString latestFilePath = fileList.first().absoluteFilePath();
         qDebug() << "Latest modified file path: " << latestFilePath;
-        if (!latestFilePath.isEmpty() && imagePathEntry_ != nullptr)
-            imagePathEntry_->setText (latestFilePath);
+        if(latestFilePath.contains(".png")) {
+            if (!latestFilePath.isEmpty() && imagePathEntry_ != nullptr)
+                imagePathEntry_->setText (latestFilePath);
+        }
     } else {
         qDebug() << "No files found in directory";
     }
@@ -6659,5 +6674,18 @@ void FN::toggleTreeView() {
     ui->treeView->setHidden(ui->treeView->isVisible());
 }
 
+void FN::toggleToolbarView() {
+    ui->menuBar->setHidden(ui->menuBar->isVisible());
 }
 
+// This is launched on F1
+void FN::rightMouseClick() {
+    qDebug() << "Requested right click";
+    QWidget *focusedWidget = QApplication::focusWidget();
+    if (focusedWidget) {
+        qDebug() << "even right click";
+
+        focusedWidget->customContextMenuRequested(QPoint(25, 25));
+    }
+}
+}
