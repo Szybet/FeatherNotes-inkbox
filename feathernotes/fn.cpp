@@ -6653,7 +6653,9 @@ void FN::addSketch() {
     process->waitForFinished(-1);
     this->repaint();
 
-    QDir directory(QCoreApplication::applicationDirPath());
+    // User app
+    //QDir directory(QCoreApplication::applicationDirPath());
+    QDir directory("/app-data/");
     directory.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList fileList = directory.entryInfoList(QDir::Files, QDir::Time);

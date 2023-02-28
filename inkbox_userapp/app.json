@@ -1,0 +1,13 @@
+{
+  "app": {
+    "Author": "Szybet",
+    "AuthorContact": "https://github.com/Szybet/FeatherNotes-inkbox",
+    "Enabled": true,
+    "ExecPath": "/app-bin/feathernotes.sh",
+    "IconPath": "/app-misc/feathernotes.svg",
+    "Name": "feathernotes",
+    "SupportedDevices": [ "n306" ],
+    "RequiredFeatures": [ ] ,
+    "Version": "0.1"
+  }
+}
