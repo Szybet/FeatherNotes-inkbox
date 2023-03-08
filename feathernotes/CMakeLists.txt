@@ -5,13 +5,12 @@ set(HUNSPELL_MINIMUM_VERSION "1.6")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 set(QT_VERSION_MAJOR 5)
-find_package(Qt5 "${QT5_MINIMUM_VERSION}" REQUIRED COMPONENTS Core Gui Widgets Svg Xml Network PrintSupport DBus)
+find_package(Qt5 "${QT5_MINIMUM_VERSION}" REQUIRED COMPONENTS Core Gui Widgets Svg Xml Network)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 
 include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
                       ${Qt5Core_INCLUDE_DIRS}
@@ -19,9 +18,7 @@ include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
                       ${Qt5Widgets_INCLUDE_DIRS}
                       ${Qt5Svg_INCLUDE_DIRS}
                       ${Qt5Xml_INCLUDE_DIRS}
-                      ${Qt5Network_INCLUDE_DIRS}
-                      ${Qt5PrintSupport_INCLUDE_DIRS}
-                      ${Qt5DBus_INCLUDE_DIRS})
+                      ${Qt5Network_INCLUDE_DIRS})
 
 add_definitions(-DDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
@@ -38,9 +35,7 @@ set(feathernotes_SRCS
     pref.cpp
     textedit.cpp
     simplecrypt.cpp
-    vscrollbar.cpp
-    printing.cpp
-    svgicons.cpp)
+    vscrollbar.cpp)
 
 set(feathernotes_RESOURCES data/fn.qrc)
 set(METAINFO_FILE data/feathernotes.metainfo.xml)
@@ -68,6 +63,4 @@ target_link_libraries(feathernotes ${Qt5Core_LIBRARIES}
                                      ${Qt5Widgets_LIBRARIES}
                                      ${Qt5Svg_LIBRARIES}
                                      ${Qt5Xml_LIBRARIES}
-                                     ${Qt5Network_LIBRARIES}
-                                     ${Qt5PrintSupport_LIBRARIES}
-                                     ${Qt5DBus_LIBRARIES})
+                                     ${Qt5Network_LIBRARIES})

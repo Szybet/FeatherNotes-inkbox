@@ -266,9 +266,6 @@
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
-    <addaction name="actionPrint"/>
-    <addaction name="actionPrintNodes"/>
-    <addaction name="actionPrintAll"/>
     <addaction name="actionExportHTML"/>
     <addaction name="separator"/>
     <addaction name="actionPassword"/>

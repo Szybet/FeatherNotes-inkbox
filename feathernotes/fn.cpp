@@ -27,10 +27,8 @@
 #include "help.h"
 #include "filedialog.h"
 #include "messagebox.h"
-#include "svgicons.h"
 #include "pref.h"
 #include "colorLabel.h"
-#include "printing.h"
 
 #ifdef HAS_HUNSPELL
 #include "spellChecker.h"
@@ -43,8 +41,6 @@
 #include <QTextStream>
 #include <QActionGroup>
 #include <QToolButton>
-#include <QPrinter>
-#include <QPrintDialog>
 #include <QFontDialog>
 #include <QColorDialog>
 #include <QCheckBox>
@@ -260,9 +256,6 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
 
     connect (ui->actionPassword, &QAction::triggered, this, &FN::setPswd);
 
-    connect (ui->actionPrint, &QAction::triggered, this, &FN::txtPrint);
-    connect (ui->actionPrintNodes, &QAction::triggered, this, &FN::txtPrint);
-    connect (ui->actionPrintAll, &QAction::triggered, this, &FN::txtPrint);
     connect (ui->actionExportHTML, &QAction::triggered, this, &FN::exportHTML);
 
     connect (ui->actionUndo, &QAction::triggered, this, &FN::undoing);
@@ -5580,133 +5573,7 @@ void FN::writeConfig()
 
     settings.endGroup();
 }
-/*************************/
-// NOTE: Because of a bug in Qt, if printing is done in this thread, it'll interfere with how
-// emojis are shown. Printing in a separate thread is also good for not blocking windows.
-void FN::txtPrint()
-{
-    QWidget *cw = ui->stackedWidget->currentWidget();
-    if (!cw) return;
 
-    closeWinDialogs();
-
-    QApplication::setOverrideCursor (QCursor(Qt::WaitCursor));
-
-    /* choose an appropriate name and directory */
-    QDir dir = QDir::home();
-    if (!xmlPath_.isEmpty())
-        dir = QFileInfo (xmlPath_).absoluteDir();
-    QModelIndex indx = ui->treeView->currentIndex();
-    QString fname;
-    if (QObject::sender() == ui->actionPrintAll)
-    {
-        if (xmlPath_.isEmpty()) fname = tr ("Untitled");
-        else
-        {
-            fname = QFileInfo (xmlPath_).fileName();
-            if (fname.endsWith (".fnx"))
-                fname.chop (4);
-        }
-    }
-    else if ((fname = model_->data (indx, Qt::DisplayRole).toString()).isEmpty())
-            fname = tr ("Untitled");
-    fname = dir.filePath (fname);
-    fname.append (".pdf");
-
-    QTextDocument *doc = nullptr;
-    bool newDocCreated = false;
-    if (QObject::sender() == ui->actionPrint)
-    {
-        if (bgColor_ == QColor (Qt::white) && fgColor_ == QColor (Qt::black))
-            doc = qobject_cast<TextEdit*>(cw)->document();
-        else
-        {
-            doc = new QTextDocument();
-            doc->setDefaultStyleSheet (DOC_STYLESHEET.arg (bgColor_.name(), fgColor_.name()));
-            newDocCreated = true;
-            doc->setHtml (qobject_cast<TextEdit*>(cw)->toHtml());
-        }
-    }
-    else
-    {
-        QString text;
-        if (QObject::sender() == ui->actionPrintNodes)
-        {
-            indx = ui->treeView->currentIndex();
-            QModelIndex sibling = model_->sibling (indx.row() + 1, 0, indx);
-            while (indx != sibling)
-            {
-                text.append (nodeAddress (indx));
-                DomItem *item = static_cast<DomItem*>(indx.internalPointer());
-                if (TextEdit *thisTextEdit = widgets_.value (item))
-                    text.append (thisTextEdit->toHtml()); // the node text may have been edited
-                else
-                {
-                    QDomNodeList lst = item->node().childNodes();
-                    text.append (lst.item (0).nodeValue());
-                }
-                indx = model_->adjacentIndex (indx, true);
-            }
-        }
-        else// if (QObject::sender() == ui->actionPrintAll)
-        {
-            indx = model_->index (0, 0, QModelIndex());
-            while (indx.isValid())
-            {
-                text.append (nodeAddress (indx));
-                DomItem *item = static_cast<DomItem*>(indx.internalPointer());
-                if (TextEdit *thisTextEdit = widgets_.value (item))
-                    text.append (thisTextEdit->toHtml());
-                else
-                {
-                    QDomNodeList lst = item->node().childNodes();
-                    text.append (lst.item (0).nodeValue());
-                }
-                indx = model_->adjacentIndex (indx, true);
-            }
-        }
-        doc = new QTextDocument();
-        if (bgColor_ != QColor (Qt::white) || fgColor_ != QColor (Qt::black))
-            doc->setDefaultStyleSheet (DOC_STYLESHEET.arg (bgColor_.name(), fgColor_.name()));
-        newDocCreated = true;
-        doc->setHtml (text);
-    }
-
-    QTimer::singleShot (0, this, []() { // wait for the dialog
-        if (QGuiApplication::overrideCursor() != nullptr)
-            QApplication::restoreOverrideCursor();
-    });
-
-    bool Use96Dpi = QCoreApplication::instance()->testAttribute (Qt::AA_Use96Dpi);
-    QScreen *screen = QGuiApplication::primaryScreen();
-    qreal sourceDpiX = Use96Dpi ? 96 : screen ? screen->logicalDotsPerInchX() : 100;
-    qreal sourceDpiY = Use96Dpi ? 96 : screen ? screen->logicalDotsPerInchY() : 100;
-    Printing *thread = new Printing (doc,
-                                     fname,
-                                     sourceDpiX,
-                                     sourceDpiY,
-                                     fgColor_);
-    if (newDocCreated) delete doc;
-
-    QPrintDialog dlg (thread->printer(), this);
-    dlg.setWindowTitle (tr ("Print Document"));
-    if (dlg.exec() == QDialog::Accepted)
-    {
-        connect (thread, &QThread::finished, thread, &QObject::deleteLater);
-        connect (thread, &QThread::finished, this, [this] {
-            // this also closes the permanent bar below
-            showWarningBar ("<center><b><big>" + tr ("Printing completed.") + "</big></b></center>", 10);
-        });
-        showWarningBar ("<center><b><big>" + tr ("Printing in progress...") + "</big></b></center>", 0);
-        thread->start();
-    }
-    else
-        delete thread;
-
-    if (QGuiApplication::overrideCursor() != nullptr)
-        QApplication::restoreOverrideCursor();
-}
-/*************************/
 void FN::exportHTML()
 {
     QWidget *cw = ui->stackedWidget->currentWidget();

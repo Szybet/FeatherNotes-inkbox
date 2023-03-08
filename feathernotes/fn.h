@@ -333,7 +333,6 @@ private slots:
     void showAndFocus();
     void trayActivated (QSystemTrayIcon::ActivationReason r);
     void activateTray();
-    void txtPrint();
     void exportHTML();
     void setHTMLName (bool checked);
     void setHTMLPath (bool);
