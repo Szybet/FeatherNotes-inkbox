@@ -348,6 +348,8 @@ private slots:
     void addSketch();
     void toggleTreeView();
 
+    void toggleTextView();
+
 #ifdef HAS_HUNSPELL
     void checkSpelling();
 #endif
@@ -395,6 +397,9 @@ private:
     void updateNodeActions();
     void toggleToolbarView();
     void rightMouseClick();
+    QItemSelection savedItemSelected;
+    QItemSelection savedItemDeselected;
+    void collapseTreeItem();
 
 #ifdef HAS_HUNSPELL
     void spellingCheckingMsg (const QString &msg, bool hasInfo);

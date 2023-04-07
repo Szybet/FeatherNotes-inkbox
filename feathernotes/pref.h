@@ -80,6 +80,8 @@ private slots:
     void addDict();
 #endif
 
+    void on_lineEdit_editingFinished();
+
 private:
     void closeEvent (QCloseEvent *event);
     void showPrompt (const QString& str = QString(), bool temporary = false);

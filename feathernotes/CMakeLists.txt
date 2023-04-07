@@ -35,7 +35,9 @@ set(feathernotes_SRCS
     pref.cpp
     textedit.cpp
     simplecrypt.cpp
-    vscrollbar.cpp)
+    vscrollbar.cpp
+    powerDaemon/sleepdialog.cpp
+    powerDaemon/sleepthread.cpp)
 
 set(feathernotes_RESOURCES data/fn.qrc)
 set(METAINFO_FILE data/feathernotes.metainfo.xml)

@@ -18,6 +18,9 @@
 #include <QTextStream>
 #include <QDebug>
 
+#include "powerDaemon/sleepdialog.h"
+#include "powerDaemon/sleepthread.h"
+#include "qthread.h"
 #include "singleton.h"
 #if not defined (Q_OS_WIN)
 #include "signalDaemon.h"
@@ -26,6 +29,7 @@
 #include <QLibraryInfo>
 #include <QTranslator>
 #include <QDebug>
+#include <QTextCodec>
 
 int main(int argc, char *argv[])
 {
@@ -127,8 +131,21 @@ int main(int argc, char *argv[])
     singleton.setStyleSheet(stylesheetFile.readAll());
     stylesheetFile.close();
 
+    // Power daemon-related stuff
+    sleepDialog * sleepDialogWindow = new sleepDialog;
+
+    QThread * IPDThread = new QThread();
+    sleepThread * sleepThreadWindow = new sleepThread();
+    sleepThreadWindow->moveToThread(IPDThread);
+    QObject::connect(IPDThread, &QThread::started, sleepThreadWindow, &sleepThread::start);
+    QObject::connect(sleepThreadWindow, &sleepThread::startDialog, sleepDialogWindow, &sleepDialog::launchSleepDialog);
+    QObject::connect(sleepThreadWindow, &sleepThread::stopDialog, sleepDialogWindow, &sleepDialog::hideSleepDialog);
+    IPDThread->start();
+
     singleton.setCursorFlashTime(0);
     qDebug() << "Starting";
+
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf8"));
 
     return singleton.exec();
 }

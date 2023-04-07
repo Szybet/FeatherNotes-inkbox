@@ -59,6 +59,7 @@
 #include <QMimeDatabase>
 #include <QProcess>
 #include <QtMath>
+#include <QTextCodec>
 
 #ifdef HAS_X11
 #include "x11.h"
@@ -195,7 +196,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     isFull_= false;
 
     remSize_ = true;
-    remSplitter_ = true;
+    remSplitter_ = false;
     remPosition_ = true;
     wrapByDefault_ = true;
     indentByDefault_ = true;
@@ -207,7 +208,7 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     autoReplace_ = false;
     openLastFile_ = true;
     saveOnExit_ = true;
-    rememberExpanded_ = true;
+    rememberExpanded_ = false;
     shownBefore_ = false;
     treeViewDND_ = false;
     readAndApplyConfig();
@@ -381,11 +382,11 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
         ui->actionPasteHTML->setEnabled (true);
     });
 
-#ifdef HAS_HUNSPELL
-    connect (ui->actionCheckSpelling, &QAction::triggered, this, &FN::checkSpelling);
-#else
-    ui->actionCheckSpelling->setVisible (false);
-#endif
+    #ifdef HAS_HUNSPELL
+        connect (ui->actionCheckSpelling, &QAction::triggered, this, &FN::checkSpelling);
+    #else
+        ui->actionCheckSpelling->setVisible (false);
+    #endif
 
     /* Once the tray icon is created, it'll persist even if the systray
        disappears temporarily. But for the tray icon to be created, the
@@ -417,6 +418,10 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
 
     QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_F1), this);
     connect(shortcut, &QShortcut::activated, this, &FN::rightMouseClick);
+
+    // Regular left button can be achieved still with ctrl + key left
+    QShortcut *collapseItem = new QShortcut(QKeySequence(Qt::Key_Left), this);
+    connect(collapseItem, &QShortcut::activated, this, &FN::collapseTreeItem);
 
     /* parse the message */
     QString filePath;
@@ -468,6 +473,9 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
 
     connect (ui->actionHideTree, &QAction::triggered, this, &FN::toggleTreeView);
     connect (ui->actionHideMenu, &QAction::triggered, this, &FN::toggleToolbarView);
+    connect (ui->actionHideText, &QAction::triggered, this, &FN::toggleTextView);
+
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf8"));
 }
 /*************************/
 FN::~FN()
@@ -638,6 +646,8 @@ void FN::showContextMenu (const QPoint &p)
     menu.addAction (ui->actionRenameNode);
 
     menu.exec (ui->treeView->viewport()->mapToGlobal (p));
+
+    qDebug() << "QTextedit setting up image path";
 }
 /*************************/
 void FN::indexExpanded (const QModelIndex &index)
@@ -667,6 +677,7 @@ void FN::indexCollapsed (const QModelIndex &index)
 /*************************/
 void FN::setCollapsedStates()
 {
+    /*
     QModelIndex indx = model_->index (0, 0);
     while (indx.isValid())
     {
@@ -692,6 +703,7 @@ void FN::setCollapsedStates()
         }
         indx = model_->adjacentIndex (indx, true);
     }
+    */
 }
 /*************************/
 void FN::fullScreening()
@@ -1183,9 +1195,9 @@ void FN::showDoc (QDomDocument &doc, int node)
         ui->treeView->scrollTo (indx);
     });
 
-    if (!rememberExpanded_)
-        ui->treeView->expandAll();
-    else
+    if (!rememberExpanded_) {
+        // ui->treeView->expandAll();
+    } else
     {
         QModelIndex _indx = newModel->index (0, 0);
         ui->treeView->setUpdatesEnabled (false);
@@ -1255,6 +1267,13 @@ void FN::fileOpen (const QString &filePath, bool startup, bool startWithLastFile
             QTextStream in (&file);
             QString cntnt = in.readAll();
             file.close();
+
+            // Set path for looking for images in html files
+            QString fnxFileDir = QFileInfo(filePath).dir().path();
+            qDebug() << "fnxFileDir:" << fnxFileDir;
+            QDir::setCurrent(fnxFileDir);
+
+
             SimpleCrypt crypto (Q_UINT64_C(0xc9a25eb1610eb104));
             QString decrypted = crypto.decryptToString (cntnt);
             if (decrypted.isEmpty())
@@ -1291,10 +1310,7 @@ void FN::fileOpen (const QString &filePath, bool startup, bool startWithLastFile
                     else
                     {
                         success = true;
-                        if (startup && startWithLastFile && lastNode_ > -1)
-                            showDoc (document, lastNode_);
-                        else
-                            showDoc (document);
+                        showDoc (document);
                         if (xmlPath_ != filePath)
                         {
                             xmlPath_ = filePath;
@@ -2210,6 +2226,14 @@ void FN::selChanged (const QItemSelection &selected, const QItemSelection &desel
                 }
             }
         }
+    }
+
+    // TODO: what
+    // qDebug() << "selChanged called" << selected << deselected;
+    savedItemSelected = selected;
+    savedItemDeselected = deselected;
+    if(ui->stackedWidget->isHidden() == true) {
+        return void();
     }
 
     /* if a widget is paired with this DOM item, show it;
@@ -5136,10 +5160,10 @@ void FN::readAndApplyConfig (bool startup)
     QByteArray splitterSizes;
     QVariant v = settings.value ("splitterSizes");
     if (v.toString() == "none")
-        remSplitter_ = false; // true by default
+        remSplitter_ = false;
     else
     {
-        remSplitter_ = true;
+        remSplitter_ = false;
         if (v.isValid())
             splitterSizes = v.toByteArray();
     }
@@ -5295,6 +5319,7 @@ void FN::readAndApplyConfig (bool startup)
 
         ui->actionHideTree->setIcon (QIcon("://icons/tree.svg"));
         ui->actionHideMenu->setIcon(QIcon("://icons/showMenu.svg"));
+        ui->actionHideText->setIcon(QIcon("://icons/edit_note.svg"));
 
         icn = QIcon::fromTheme ("feathernotes");
         if (icn.isNull())
@@ -5354,7 +5379,7 @@ void FN::readAndApplyConfig (bool startup)
     {
         xmlPath_ = settings.value ("lastOpenedFile").toString();
         static_cast<FNSingleton*>(qApp)->setLastFile (xmlPath_);
-        lastNode_ = settings.value ("lastNode", -1).toInt();
+        lastNode_ = -1;
     }
     else
     {
@@ -5422,26 +5447,6 @@ void FN::writeGeometryConfig (bool withLastNodeInfo)
     settings.setValue ("prefSize", prefSize_);
 
     settings.endGroup();
-
-    if (withLastNodeInfo && openLastFile_ && !xmlPath_.isEmpty())
-    {
-        settings.beginGroup ("text");
-
-        lastNode_ = 0;
-        QModelIndex curIndx = ui->treeView->currentIndex();
-        QModelIndex indx = model_->index (0, 0, QModelIndex());
-        if (curIndx.isValid() && indx.isValid())
-        {
-            while (indx != curIndx
-                   && (indx = model_->adjacentIndex (indx, true)).isValid())
-            {
-                ++lastNode_;
-            }
-        }
-        settings.setValue ("lastNode", lastNode_);
-
-        settings.endGroup();
-    }
 }
 /*************************/
 // Recent files are also updated.
@@ -6547,14 +6552,30 @@ void FN::toggleToolbarView() {
     ui->menuBar->setHidden(ui->menuBar->isVisible());
 }
 
+void FN::toggleTextView() {
+    ui->stackedWidget->setHidden(ui->stackedWidget->isVisible());
+
+    if(ui->stackedWidget->isVisible() == true) {
+        selChanged(savedItemSelected, savedItemDeselected);
+    }
+}
+
 // This is launched on F1
 void FN::rightMouseClick() {
     qDebug() << "Requested right click";
     QWidget *focusedWidget = QApplication::focusWidget();
     if (focusedWidget) {
-        qDebug() << "even right click";
-
+        qDebug() << "Right click send";
         focusedWidget->customContextMenuRequested(QPoint(25, 25));
     }
 }
+
+// For some reason it's buggy, so this is needed
+void FN::collapseTreeItem() {
+    qDebug() << "Requested tree colapse";
+    if(ui->treeView->hasFocus() == true) {
+        ui->treeView->collapse(savedItemSelected.indexes().first());
+    }
+}
+
 }

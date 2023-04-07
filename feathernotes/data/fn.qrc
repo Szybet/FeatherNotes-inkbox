@@ -92,5 +92,6 @@
         <file>icons/h1.svg</file>
         <file>icons/h2.svg</file>
         <file>icons/h3.svg</file>
+        <file>icons/edit_note.svg</file>
     </qresource>
 </RCC>

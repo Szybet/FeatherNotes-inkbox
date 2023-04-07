@@ -30,6 +30,7 @@
 #include <QAction>
 #include <QWhatsThis>
 #include <QDesktopWidget>
+#include <QMessageBox>
 
 namespace FeatherNotes {
 
@@ -345,6 +346,14 @@ PrefDialog::PrefDialog (QWidget *parent)
         int y = screenGeometry.height() / 2 - this->height() / 2;
         this->move(x, y);
     });
+
+    QString keymapValue;
+    QFile file("/app-data/configuration/keymap");
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        keymapValue = file.readAll();
+        file.close();
+    }
+    ui->lineEdit->setText(keymapValue);
 }
 /*************************/
 PrefDialog::~PrefDialog()
@@ -575,6 +584,19 @@ void PrefDialog::showPrompt (const QString& str, bool temporary)
     }
     ui->promptLabel->show();
 }
+
+
+void PrefDialog::on_lineEdit_editingFinished()
+{
+    QString keymap = ui->lineEdit->text();
+    QFile file("/app-data/configuration/keymap");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        file.write(keymap.toLocal8Bit());
+        file.close();
+        QMessageBox::information(this, "Information", "To apply this setting, you need to relaunch the app");
+    }
+}
+
 /*************************/
 #ifdef HAS_HUNSPELL
 void PrefDialog::addDict()

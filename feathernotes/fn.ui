@@ -35,8 +35,14 @@
       <property name="lineWidth">
        <number>0</number>
       </property>
+      <property name="midLineWidth">
+       <number>0</number>
+      </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="handleWidth">
+       <number>20</number>
       </property>
       <widget class="FeatherNotes::TreeView" name="treeView">
        <property name="frameShadow">
@@ -534,6 +540,7 @@
    <addaction name="separator"/>
    <addaction name="actionHideTree"/>
    <addaction name="actionHideMenu"/>
+   <addaction name="actionHideText"/>
    <addaction name="separator"/>
    <addaction name="actionClear"/>
    <addaction name="actionBold"/>
@@ -1422,6 +1429,9 @@
    </property>
   </action>
   <action name="actionHideTree">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Hide Tree</string>
    </property>
@@ -1438,6 +1448,14 @@
    </property>
    <property name="text">
     <string>Hide Menu</string>
+   </property>
+  </action>
+  <action name="actionHideText">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hide Text</string>
    </property>
   </action>
  </widget>

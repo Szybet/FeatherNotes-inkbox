@@ -30,12 +30,14 @@ sshpass -p $passwd ssh $servername "bash -c \"sync\""
 
 sshpass -p $passwd ssh $servername "bash -c \"killall -9 feathernotes.sh\"" || EXIT_CODE=0
 
-sshpass -p $passwd ssh $servername "bash -c \"service inkbox_gui restart\"" & # to get logs
+sshpass -p $passwd ssh $servername "bash -c \"service gui_apps restart\""
+
+# sshpass -p $passwd ssh $servername "bash -c \"service inkbox_gui restart\"" & # to get logs
 
 # To update main json
-sleep 15
-sshpass -p $passwd ssh $servername "bash -c \"touch /kobo/tmp/rescan_userapps\"" # This gets deleted by service restart
-sshpass -p $passwd ssh $servername "bash -c \"killall inkbox-bin\""
+# sleep 15
+# sshpass -p $passwd ssh $servername "bash -c \"touch /kobo/tmp/rescan_userapps\"" # This gets deleted by service restart
+# sshpass -p $passwd ssh $servername "bash -c \"killall inkbox-bin\""
 
 # sshpass -p $passwd ssh $servername "bash -c \"rc-service gui_apps restart\""
 

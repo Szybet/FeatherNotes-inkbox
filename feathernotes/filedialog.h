@@ -33,6 +33,7 @@ public:
         tView = nullptr;
         p = parent;
         setViewMode (QFileDialog::List);
+        this->showMaximized();
         //setOption (QFileDialog::DontUseNativeDialog);
     }
 

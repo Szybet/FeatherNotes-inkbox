@@ -291,6 +291,20 @@ showing a warning if saving is not possible.</string>
            </widget>
           </item>
           <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Keymap name (en, pl...)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEdit"/>
+            </item>
+           </layout>
+          </item>
+          <item>
            <spacer name="verticalSpacer_2">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -346,8 +360,14 @@ showing a warning if saving is not possible.</string>
               <property name="suffix">
                <string/>
               </property>
+              <property name="prefix">
+               <string/>
+              </property>
               <property name="maximum">
                <number>20</number>
+              </property>
+              <property name="value">
+               <number>1</number>
               </property>
              </widget>
             </item>
