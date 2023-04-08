@@ -42,7 +42,7 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <property name="handleWidth">
-       <number>20</number>
+       <number>50</number>
       </property>
       <widget class="FeatherNotes::TreeView" name="treeView">
        <property name="frameShadow">
@@ -299,7 +299,7 @@
    </widget>
    <widget class="QMenu" name="menuFormat">
     <property name="title">
-     <string>For&amp;mat</string>
+     <string>&amp;Format</string>
     </property>
     <addaction name="actionClear"/>
     <addaction name="separator"/>
@@ -366,6 +366,9 @@
     <addaction name="actionNodeFont"/>
     <addaction name="separator"/>
     <addaction name="actionPref"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeviceShow"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuSearch">
     <property name="title">
@@ -536,6 +539,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionTime"/>
+   <addaction name="separator"/>
    <addaction name="actionSave"/>
    <addaction name="separator"/>
    <addaction name="actionHideTree"/>
@@ -546,6 +551,7 @@
    <addaction name="actionBold"/>
    <addaction name="actionItalic"/>
    <addaction name="actionUnderline"/>
+   <addaction name="actionAddLine"/>
    <addaction name="separator"/>
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
@@ -648,7 +654,7 @@
     <string>Clear all formats</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+E</string>
+    <string>Alt+4</string>
    </property>
   </action>
   <action name="actionBold">
@@ -1456,6 +1462,21 @@
    </property>
    <property name="text">
     <string>Hide Text</string>
+   </property>
+  </action>
+  <action name="actionTime">
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </action>
+  <action name="actionAddLine">
+   <property name="text">
+    <string>Line</string>
+   </property>
+  </action>
+  <action name="actionDeviceShow">
+   <property name="text">
+    <string>Device options</string>
    </property>
   </action>
  </widget>

@@ -350,6 +350,10 @@ private slots:
 
     void toggleTextView();
 
+    void addLine();
+
+    void launchDeviceDialog();
+
 #ifdef HAS_HUNSPELL
     void checkSpelling();
 #endif

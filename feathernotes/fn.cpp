@@ -29,6 +29,7 @@
 #include "messagebox.h"
 #include "pref.h"
 #include "colorLabel.h"
+#include "device.h"
 
 #ifdef HAS_HUNSPELL
 #include "spellChecker.h"
@@ -419,6 +420,10 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_F1), this);
     connect(shortcut, &QShortcut::activated, this, &FN::rightMouseClick);
 
+    // Done in UI
+    //QShortcut *clearFormatShortcut = new QShortcut(QKeySequence(Qt::Key_Alt | Qt::Key_4), this);
+    //connect(clearFormatShortcut, &QShortcut::activated, this, &FN::clearFormat);
+
     // Regular left button can be achieved still with ctrl + key left
     QShortcut *collapseItem = new QShortcut(QKeySequence(Qt::Key_Left), this);
     connect(collapseItem, &QShortcut::activated, this, &FN::collapseTreeItem);
@@ -474,8 +479,25 @@ FN::FN (const QStringList& message, QWidget *parent) : QMainWindow (parent), ui 
     connect (ui->actionHideTree, &QAction::triggered, this, &FN::toggleTreeView);
     connect (ui->actionHideMenu, &QAction::triggered, this, &FN::toggleToolbarView);
     connect (ui->actionHideText, &QAction::triggered, this, &FN::toggleTextView);
+    connect (ui->actionAddLine, &QAction::triggered, this, &FN::addLine);
+    connect (ui->actionDeviceShow, &QAction::triggered, this, &FN::launchDeviceDialog);
 
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf8"));
+
+    QTimer *t = new QTimer(this);
+    t->setInterval(1000);
+    connect(t, &QTimer::timeout, [&]() {
+        QString time = QTime::currentTime().toString("hh:mm");
+        ui->actionTime->setText(time);
+        // Not needed really
+        /*
+        QString svg = "<svg viewBox=\"0 0 200 50\"><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\">Hello, world!</text></svg>";
+        QImage img = QImage::fromData(svg.toLocal8Bit());
+        QPixmap pixmap = QPixmap::fromImage(img);
+        ui->actionTime->setIcon(QIcon(pixmap));
+        */
+    } );
+    t->start();
 }
 /*************************/
 FN::~FN()
@@ -1748,6 +1770,7 @@ bool FN::fileSave (const QString &filePath)
 
             QTextStream outStream (&outputFile);
             model_->domDocument.save (outStream, 1);
+            outputFile.flush();
             outputFile.close();
 
             if (xmlPath_ != filePath)
@@ -1778,6 +1801,7 @@ bool FN::fileSave (const QString &filePath)
 
             QTextStream out (&outputFile);
             out << encrypted;
+            outputFile.flush();
             outputFile.close();
 
             if (xmlPath_ != filePath)
@@ -2645,6 +2669,7 @@ void FN::bgColor()
 /*************************/
 void FN::clearFormat()
 {
+    qDebug() << "clearFormat called";
     QWidget *cw = ui->stackedWidget->currentWidget();
     if (!cw) return;
 
@@ -2663,6 +2688,8 @@ void FN::clearFormat()
         textEdit->setCurrentCharFormat (fmt); // alows to type without format
     else
         cur.setCharFormat (fmt);
+
+    textEdit->setFocus();
 }
 /*************************/
 void FN::textAlign (QAction *a)
@@ -5320,6 +5347,8 @@ void FN::readAndApplyConfig (bool startup)
         ui->actionHideTree->setIcon (QIcon("://icons/tree.svg"));
         ui->actionHideMenu->setIcon(QIcon("://icons/showMenu.svg"));
         ui->actionHideText->setIcon(QIcon("://icons/edit_note.svg"));
+        ui->actionAddLine->setIcon(QIcon("://icons/line.svg"));
+        ui->actionDeviceShow->setIcon(QIcon("://icons/device-settings.svg"));
 
         icn = QIcon::fromTheme ("feathernotes");
         if (icn.isNull())
@@ -6520,9 +6549,19 @@ void FN::addSketch() {
     qDebug() << "Requested sketch";
 
     QProcess *process = new QProcess(this);
-    process->setWorkingDirectory(QCoreApplication::applicationDirPath());
-    process->start("./sketch.sh", QStringList() << QCoreApplication::applicationDirPath());
-    process->waitForFinished(-1);
+    process->start("/app-bin/sketch.sh", QStringList() << "/app-data/");
+
+    if (process->waitForStarted(-1)) {
+        if (process->waitForFinished(-1)) {
+            qDebug() << "Standard output:" << QString(process->readAllStandardOutput()).simplified();
+            qDebug() << "Standard error:" << QString(process->readAllStandardError()).simplified();
+        } else {
+            qDebug() << "Failed to finish process:" << process->errorString();
+        }
+    } else {
+        qDebug() << "Failed to start process:" << process->errorString();
+    }
+
     this->repaint();
 
     // User app
@@ -6576,6 +6615,24 @@ void FN::collapseTreeItem() {
     if(ui->treeView->hasFocus() == true) {
         ui->treeView->collapse(savedItemSelected.indexes().first());
     }
+}
+
+void FN::addLine() {
+    qDebug() << "add Line called";
+
+    QWidget *cw = ui->stackedWidget->currentWidget();
+    if (!cw) return;
+
+    TextEdit *textEdit = qobject_cast<TextEdit*>(cw);
+    QTextCursor cur = textEdit->textCursor();
+    // Styling of hr not supported...
+    cur.insertHtml("<hr><br>");
+}
+
+void FN::launchDeviceDialog() {
+    qDebug() << "launchDeviceDialog called";
+    QDialog* deviceDialog = new device(this);
+    deviceDialog->exec();
 }
 
 }

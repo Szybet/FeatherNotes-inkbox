@@ -37,7 +37,8 @@ set(feathernotes_SRCS
     simplecrypt.cpp
     vscrollbar.cpp
     powerDaemon/sleepdialog.cpp
-    powerDaemon/sleepthread.cpp)
+    powerDaemon/sleepthread.cpp
+    device.cpp)
 
 set(feathernotes_RESOURCES data/fn.qrc)
 set(METAINFO_FILE data/feathernotes.metainfo.xml)

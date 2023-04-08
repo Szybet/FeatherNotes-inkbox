@@ -93,5 +93,7 @@
         <file>icons/h2.svg</file>
         <file>icons/h3.svg</file>
         <file>icons/edit_note.svg</file>
+        <file>icons/line.svg</file>
+        <file>icons/device-settings.svg</file>
     </qresource>
 </RCC>
