@@ -1,4 +1,5 @@
 build/*
 *.user
-deploy.sh
 clean.sh
+*.isa*
+inkbox_userapp/feathernotes/app-bin/feathernotes.bin
