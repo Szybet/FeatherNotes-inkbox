@@ -1769,6 +1769,8 @@ bool FN::fileSave (const QString &filePath)
             setNodesTexts();
 
             QTextStream outStream (&outputFile);
+            qDebug() << "Save locale:" << outStream.locale();
+
             model_->domDocument.save (outStream, 1);
             outputFile.flush();
             outputFile.close();

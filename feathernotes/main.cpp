@@ -54,6 +54,9 @@ int main(int argc, char *argv[])
     }
 
     FeatherNotes::FNSingleton singleton (argc, argv);
+
+    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf8"));
+
     singleton.setApplicationName (name);
     singleton.setApplicationVersion (version);
 
@@ -144,8 +147,6 @@ int main(int argc, char *argv[])
 
     singleton.setCursorFlashTime(0);
     qDebug() << "Starting";
-
-    QTextCodec::setCodecForLocale(QTextCodec::codecForName("utf8"));
 
     return singleton.exec();
 }
