@@ -1736,6 +1736,8 @@ bool FN::saveFile()
         dialog.setDirectory (fname.section ("/", 0, -2)); // workaround for KDE
         dialog.selectFile (fname);
         dialog.autoScroll();
+        dialog.setFixedSize(this->size());
+        dialog.move(0, 0);
         if (dialog.exec())
         {
             fname = dialog.selectedFiles().at (0);
@@ -4510,6 +4512,7 @@ void FN::setImagePath (bool)
     dialog.setNameFilter (tr ("Image Files (*.svg *.png *.jpg *.jpeg *.bmp *.gif);;All Files (*)"));
     dialog.setDirectory(QCoreApplication::applicationDirPath());
     dialog.setFixedSize(this->size());
+    dialog.move(0, 0);
 
     if (dialog.exec())
     {
